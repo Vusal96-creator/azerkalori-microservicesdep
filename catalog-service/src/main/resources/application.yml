@@ -1,0 +1,39 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: catalog-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/azerkalori?currentSchema=catalog}
+    username: ${DB_USER:azer}
+    password: ${DB_PASS:secret}
+  jpa:
+    hibernate:
+      ddl-auto: update
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+  cache:
+    type: redis
+    redis:
+      time-to-live: 24h
+  graphql:
+    graphiql:
+      enabled: true
+
+openfoodfacts:
+  url: https://world.openfoodfacts.org
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      openfoodfacts:
+        sliding-window-size: 6
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        minimum-number-of-calls: 3
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}

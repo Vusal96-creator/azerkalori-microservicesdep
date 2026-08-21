@@ -1,0 +1,25 @@
+server:
+  port: 8084
+spring:
+  application:
+    name: nutrition-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/azerkalori?currentSchema=nutrition}
+    username: ${DB_USER:azer}
+    password: ${DB_PASS:secret}
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+grpc:
+  server:
+    port: 9090
+  client:
+    nutrition:
+      address: static://localhost:9090
+      negotiation-type: plaintext
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}

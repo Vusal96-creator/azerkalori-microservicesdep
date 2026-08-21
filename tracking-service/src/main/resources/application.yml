@@ -1,0 +1,29 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: tracking-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/azerkalori?currentSchema=tracking}
+    username: ${DB_USER:azer}
+    password: ${DB_PASS:secret}
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+jwt:
+  secret: ${JWT_SECRET:local-dev-secret-min-32-chars-long-please}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      nutrition:
+        sliding-window-size: 6
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 20s
+        minimum-number-of-calls: 3
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}

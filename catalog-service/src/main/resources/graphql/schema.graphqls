@@ -1,0 +1,22 @@
+type Product {
+    id: ID!
+    name: String!
+    brand: String
+    category: String
+    barcode: String
+    calories: Float
+    proteinG: Float
+    fatG: Float
+    carbsG: Float
+    enriched: Boolean
+}
+
+type Query {
+    searchProducts(
+        name: String
+        category: String
+        minCalories: Float
+        maxCalories: Float
+        minProtein: Float
+    ): [Product!]!
+}

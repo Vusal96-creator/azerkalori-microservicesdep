@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AzərKalori — Kalori Hesablama və İzləmə</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥗</text></svg>" />
+</head>
+<body>
+
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand">🥗 Azər<span>Kalori</span></div>
+      <nav class="nav-links" id="navLinks">
+        <a data-nav="home" class="active">Kalkulyator</a>
+        <a data-nav="dashboard" class="auth-only hidden">Panelim</a>
+        <a data-nav="doctor" class="role-DOCTOR hidden">Həkim</a>
+        <a data-nav="admin" class="role-ADMIN hidden">Admin</a>
+      </nav>
+      <div class="nav-right">
+        <span class="chip auth-only hidden" id="userChip"></span>
+        <button class="btn sm ghost guest-only" data-nav="auth">Daxil ol</button>
+        <button class="btn sm ghost auth-only hidden" id="logoutBtn">Çıxış</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HOME / CALCULATOR -->
+  <section id="view-home" class="view active">
+    <div class="hero">
+      <div class="container hero-grid">
+        <div>
+          <h1>Gündəlik <em>kalori</em> ehtiyacını<br />bir kliklə hesabla</h1>
+          <p class="lead">Yaşına, çəkinə və aktivliyinə görə BMR / TDEE hesabla, sonra qeydiyyatdan keç və
+            yediklərini izlə. Həkimin sənə pəhriz planı təyin edə bilər.</p>
+          <div class="cta-row">
+            <button class="btn" data-scroll="calc">Kalorimi hesabla</button>
+            <button class="btn ghost" data-nav="auth">Hesab yarat</button>
+          </div>
+          <div class="badges">
+            <div class="badge">🔬 <b>Mifflin-St Jeor</b> düsturu</div>
+            <div class="badge">⚡ Canlı <b>WebSocket</b> sayğac</div>
+            <div class="badge">👨‍⚕️ Həkim <b>pəhriz planı</b></div>
+          </div>
+        </div>
+
+        <div class="card" id="calc">
+          <h3>Kalori kalkulyatoru</h3>
+          <p class="sub">Məlumatları daxil et — nəticə anında görünəcək.</p>
+
+          <div class="segmented" id="sexSeg">
+            <button data-sex="MALE" class="on">Kişi</button>
+            <button data-sex="FEMALE">Qadın</button>
+          </div>
+          <div style="height:14px"></div>
+
+          <div class="row">
+            <label class="field"><span class="lab">Yaş</span><input id="c_age" type="number" value="28" /></label>
+            <label class="field"><span class="lab">Boy (sm)</span><input id="c_height" type="number" value="178" /></label>
+            <label class="field"><span class="lab">Çəki (kq)</span><input id="c_weight" type="number" value="82" /></label>
+          </div>
+
+          <label class="field">
+            <span class="lab">Aktivlik səviyyəsi</span>
+            <select id="c_activity">
+              <option value="SEDENTARY">Hərəkətsiz (ofis)</option>
+              <option value="LIGHT">Yüngül (həftədə 1-3)</option>
+              <option value="MODERATE" selected>Orta (həftədə 3-5)</option>
+              <option value="ACTIVE">Aktiv (həftədə 6-7)</option>
+              <option value="VERY_ACTIVE">Çox aktiv</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="lab">Məqsəd</span>
+            <select id="c_goal">
+              <option value="LOSE">Arıqlamaq (-15%)</option>
+              <option value="MAINTAIN" selected>Saxlamaq</option>
+              <option value="GAIN">Kökəlmək (+15%)</option>
+            </select>
+          </label>
+
+          <button class="btn block" id="calcBtn">Hesabla</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="margin-top:26px">
+      <div class="card">
+        <h3>Nəticə</h3>
+        <p class="sub">gRPC hesablama mühərriki (nutrition-service) tərəfindən hesablanır.</p>
+        <div id="calcResult"><div class="result-empty">Hesablamaq üçün “Hesabla” düyməsini bas.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AUTH -->
+  <section id="view-auth" class="view">
+    <div class="container" style="max-width:520px">
+      <h2 class="section-title">Xoş gəlmisən</h2>
+      <p class="section-sub">Daxil ol və ya yeni hesab yarat.</p>
+      <div class="card">
+        <div class="tabs" id="authTabs">
+          <button data-tab="login" class="on">Daxil ol</button>
+          <button data-tab="register">Qeydiyyat</button>
+        </div>
+
+        <div id="tab-login">
+          <label class="field"><span class="lab">E-poçt</span><input id="l_email" value="user@azerkalori.az" /></label>
+          <label class="field"><span class="lab">Şifrə</span><input id="l_pass" type="password" value="user123" /></label>
+          <button class="btn block" id="loginBtn">Daxil ol</button>
+          <p class="sub" style="margin-top:14px">Demo: <b>user@azerkalori.az / user123</b> · <b>doctor@azerkalori.az / doctor123</b> · <b>admin@azerkalori.az / admin123</b></p>
+        </div>
+
+        <div id="tab-register" class="hidden">
+          <label class="field"><span class="lab">Ad Soyad</span><input id="r_name" /></label>
+          <label class="field"><span class="lab">E-poçt</span><input id="r_email" /></label>
+          <label class="field"><span class="lab">Şifrə</span><input id="r_pass" type="password" /></label>
+          <div class="row">
+            <label class="field"><span class="lab">Yaş</span><input id="r_age" type="number" value="25" /></label>
+            <label class="field"><span class="lab">Çəki (kq)</span><input id="r_weight" type="number" value="70" /></label>
+            <label class="field"><span class="lab">Boy (sm)</span><input id="r_height" type="number" value="172" /></label>
+          </div>
+          <div class="row">
+            <label class="field"><span class="lab">Cins</span>
+              <select id="r_sex"><option value="MALE">Kişi</option><option value="FEMALE">Qadın</option></select>
+            </label>
+            <label class="field"><span class="lab">Aktivlik</span>
+              <select id="r_activity">
+                <option value="SEDENTARY">Hərəkətsiz</option>
+                <option value="LIGHT">Yüngül</option>
+                <option value="MODERATE" selected>Orta</option>
+                <option value="ACTIVE">Aktiv</option>
+                <option value="VERY_ACTIVE">Çox aktiv</option>
+              </select>
+            </label>
+          </div>
+          <button class="btn block" id="registerBtn">Hesab yarat</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- USER DASHBOARD -->
+  <section id="view-dashboard" class="view">
+    <div class="container">
+      <h2 class="section-title">Panelim</h2>
+      <p class="section-sub">Bu günkü kalori balansın və qidalanma jurnalın.</p>
+
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Bu gün</h3>
+          <p class="sub" id="liveState">Canlı sayğac (WebSocket)</p>
+          <div class="ring-wrap">
+            <div class="ring" id="ring"><div class="inner"><div><div class="pct" id="ringPct">0%</div><div class="cap">limitin</div></div></div></div>
+            <div style="flex:1">
+              <div class="kcal-big"><span id="calNow">0</span> <small>/ <span id="calTarget">0</span> kkal</small></div>
+              <div class="macro p"><div class="top"><span>Protein</span><b><span id="mP">0</span> q</b></div><div class="bar"><i id="barP" style="width:0"></i></div></div>
+              <div class="macro f"><div class="top"><span>Yağ</span><b><span id="mF">0</span> q</b></div><div class="bar"><i id="barF" style="width:0"></i></div></div>
+              <div class="macro c"><div class="top"><span>Karbohidrat</span><b><span id="mC">0</span> q</b></div><div class="bar"><i id="barC" style="width:0"></i></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Qida əlavə et</h3>
+          <p class="sub">Məhsul seç, qramı yaz və jurnalına əlavə et.</p>
+          <label class="field"><span class="lab">Məhsul</span><select id="prodSelect"></select></label>
+          <label class="field"><span class="lab">Miqdar (qram)</span><input id="grams" type="number" value="150" /></label>
+          <button class="btn block" id="logBtn">Jurnala əlavə et</button>
+          <div style="height:18px"></div>
+          <h3>Pəhriz planım</h3>
+          <div id="planBox" class="sub">Yüklənir…</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px">
+        <h3>Bu gün yediklərim</h3>
+        <div class="list" id="todayLogs"><div class="result-empty">Hələ qeyd yoxdur.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOCTOR -->
+  <section id="view-doctor" class="view">
+    <div class="container">
+      <h2 class="section-title">Həkim paneli</h2>
+      <p class="section-sub">Pasiyentlərini izlə və pəhriz planı təyin et.</p>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Pasiyentlərim</h3>
+          <div class="list" id="patients"><div class="result-empty">Yüklənir…</div></div>
+          <div style="height:14px"></div>
+          <h3>Canlı xəbərdarlıqlar</h3>
+          <p class="sub">Pasiyent limitini keçəndə bura düşür.</p>
+          <div class="list" id="alerts"><div class="result-empty">Hələ xəbərdarlıq yoxdur.</div></div>
+        </div>
+        <div class="card">
+          <h3>Pəhriz planı təyin et</h3>
+          <p class="sub">Yalnız öz pasiyentin üçün.</p>
+          <label class="field"><span class="lab">Pasiyent</span><select id="planPatient"></select></label>
+          <div class="row">
+            <label class="field"><span class="lab">Gündəlik kalori</span><input id="p_target" type="number" value="2000" /></label>
+            <label class="field"><span class="lab">Protein (q)</span><input id="p_protein" type="number" value="140" /></label>
+          </div>
+          <div class="row">
+            <label class="field"><span class="lab">Yağ (q)</span><input id="p_fat" type="number" value="60" /></label>
+            <label class="field"><span class="lab">Karbohidrat (q)</span><input id="p_carbs" type="number" value="220" /></label>
+          </div>
+          <label class="field"><span class="lab">Qeyd</span><input id="p_notes" value="Şəkəri azalt, zülalı artır." /></label>
+          <button class="btn block" id="planBtn">Planı yarat</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="view-admin" class="view">
+    <div class="container">
+      <h2 class="section-title">Admin paneli</h2>
+      <p class="section-sub">Kataloq, həkimlər və təyinatlar.</p>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Məhsul əlavə et</h3>
+          <label class="field"><span class="lab">Ad</span><input id="a_name" /></label>
+          <div class="row">
+            <label class="field"><span class="lab">Kateqoriya</span><input id="a_cat" value="MAIN" /></label>
+            <label class="field"><span class="lab">Kalori /100q</span><input id="a_kcal" type="number" value="150" /></label>
+          </div>
+          <div class="row">
+            <label class="field"><span class="lab">Protein</span><input id="a_p" type="number" value="8" /></label>
+            <label class="field"><span class="lab">Yağ</span><input id="a_f" type="number" value="5" /></label>
+            <label class="field"><span class="lab">Karb</span><input id="a_c" type="number" value="20" /></label>
+          </div>
+          <button class="btn block" id="prodBtn">Kataloqa əlavə et</button>
+        </div>
+
+        <div class="card">
+          <h3>Həkim yarat</h3>
+          <label class="field"><span class="lab">Ad Soyad</span><input id="d_name" /></label>
+          <label class="field"><span class="lab">E-poçt</span><input id="d_email" /></label>
+          <label class="field"><span class="lab">Şifrə</span><input id="d_pass" type="password" value="doctor123" /></label>
+          <button class="btn block" id="doctorBtn">Həkim yarat</button>
+          <div style="height:18px"></div>
+          <h3>Pasiyentə həkim təyin et</h3>
+          <div class="row">
+            <label class="field"><span class="lab">Pasiyent</span><select id="as_patient"></select></label>
+            <label class="field"><span class="lab">Həkim</span><select id="as_doctor"></select></label>
+          </div>
+          <button class="btn block ghost" id="assignBtn">Təyin et</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px">
+        <h3>Kataloq</h3>
+        <div style="overflow-x:auto"><table id="prodTable"><thead><tr><th>Ad</th><th>Kateqoriya</th><th>Kkal</th><th>P</th><th>Y</th><th>K</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">AzərKalori · Spring Cloud mikroservis layihəsi · Eureka · Gateway · gRPC · GraphQL · WebSocket · Redis · Resilience4j</div>
+  </footer>
+
+  <div id="toasts"></div>
+
+  <script src="/js/vendor/sockjs.min.js"></script>
+  <script src="/js/vendor/stomp.umd.min.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

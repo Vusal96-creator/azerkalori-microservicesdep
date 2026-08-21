@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gradle wrapper *)",
+      "Bash(docker compose *)",
+      "Bash(rm -f TrackingServiceApplication.java entity/DailySummary.java web/CatalogClient.java web/FoodLogController.java web/NutritionClient.java ws/WebSocketConfig.java)",
+      "Bash(mkdir -p service ws)",
+      "Bash(rm -f entity/User.java security/SecurityConfig.java web/AuthController.java)",
+      "Bash(mkdir -p config)",
+      "Bash(rm -f entity/Product.java client/EnrichmentService.java web/ProductController.java)",
+      "Bash(rm -f grpc/NutritionGrpcService.java entity/DietPlan.java web/GoalController.java web/DietPlanController.java web/AuthClient.java)",
+      "Bash(curl -fsSL https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js -o frontend/js/vendor/sockjs.min.js)",
+      "Bash(curl -fsSL https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js -o frontend/js/vendor/stomp.umd.min.js)",
+      "Bash(perl -0pi -e 's{^/\\\\*.*?\\\\*/\\\\n}{}mg' app.js)",
+      "Bash(node --check app.js)",
+      "Bash(echo \"BUILD EXIT: $?\")",
+      "Read(//tmp/**)",
+      "Bash(echo \"UP EXIT: $?\")",
+      "Bash(cd /Users/vusalbilalov/Downloads/azerkalori-microservices *)",
+      "Bash(grep -qiE 'exit code|Building.*\\(FAILED|ERROR\\)|writing image|naming to|DONE.*$' /tmp/compose-build2.log)",
+      "Bash(curl -s -o /dev/null -w \"calc:%{http_code}\\\\n\" -X POST http://localhost/api/goals/calculate -H 'Content-Type: application/json' -d '{\"age\":28,\"weightKg\":82,\"heightCm\":178,\"sex\":\"MALE\",\"activityLevel\":\"MODERATE\",\"goal\":\"MAINTAIN\"}')",
+      "Bash(curl -s -o /dev/null -w \"login:%{http_code}\\\\n\" -X POST http://localhost/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"user@azerkalori.az\",\"password\":\"user123\"}')",
+      "Bash(curl -s -o /dev/null -w \"gw direct login: %{http_code}\\\\n\" -X POST http://localhost:8080/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"user@azerkalori.az\",\"password\":\"user123\"}')",
+      "Bash(awk '/ERROR.*HttpServer/{f=1} f{print} /Thread.run/{if\\(f\\){c++; if\\(c>=1\\) exit}}')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost/ws/info)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost/js/vendor/stomp.umd.min.js)",
+      "Bash(echo \"reset exit: $?\")"
+    ]
+  }
+}

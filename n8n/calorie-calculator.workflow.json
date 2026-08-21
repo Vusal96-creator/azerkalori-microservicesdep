@@ -1,0 +1,46 @@
+{
+  "name": "AzerKalori - Calorie Calculator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "calorie",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b1a1a111-1111-4111-8111-111111111111",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const b = ($input.first().json.body) || $input.first().json;\nconst bmr = 10 * b.weightKg + 6.25 * b.heightCm - 5 * b.age + (b.sex === 'MALE' ? 5 : -161);\nconst mult = { SEDENTARY: 1.2, LIGHT: 1.375, MODERATE: 1.55, ACTIVE: 1.725, VERY_ACTIVE: 1.9 }[b.activityLevel] ?? 1.2;\nconst tdee = bmr * mult;\nconst daily = b.goal === 'LOSE' ? tdee * 0.85 : b.goal === 'GAIN' ? tdee * 1.15 : tdee;\nconst proteinG = b.weightKg * 1.8;\nconst fatG = daily * 0.25 / 9;\nconst carbsG = (daily - proteinG * 4 - fatG * 9) / 4;\nconst r = (v) => Math.round(v * 10) / 10;\nreturn [{ json: {\n  bmr: r(bmr),\n  tdee: r(tdee),\n  dailyCalories: r(daily),\n  proteinG: r(proteinG),\n  fatG: r(fatG),\n  carbsG: r(Math.max(carbsG, 0))\n} }];"
+      },
+      "id": "c2b2b222-2222-4222-8222-222222222222",
+      "name": "Calculate (BMR/TDEE)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "d3c3c333-3333-4333-8333-333333333333",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Calculate (BMR/TDEE)", "type": "main", "index": 0 }]] },
+    "Calculate (BMR/TDEE)": { "main": [[{ "node": "Respond", "type": "main", "index": 0 }]] }
+  },
+  "settings": {},
+  "active": false
+}

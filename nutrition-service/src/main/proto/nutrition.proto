@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package az.azerkalori.nutrition;
+
+option java_multiple_files = true;
+option java_package = "az.azerkalori.nutrition.proto";
+
+enum Sex {
+  MALE = 0;
+  FEMALE = 1;
+}
+
+enum ActivityLevel {
+  SEDENTARY = 0;        // x1.2
+  LIGHT = 1;            // x1.375
+  MODERATE = 2;         // x1.55
+  ACTIVE = 3;           // x1.725
+  VERY_ACTIVE = 4;      // x1.9
+}
+
+enum GoalType {
+  LOSE = 0;             // -15%
+  MAINTAIN = 1;         // 0%
+  GAIN = 2;             // +15%
+}
+
+message CalculateGoalRequest {
+  int32 age = 1;
+  double weight_kg = 2;
+  double height_cm = 3;
+  Sex sex = 4;
+  ActivityLevel activity_level = 5;
+  GoalType goal = 6;
+}
+
+message CalculateGoalResponse {
+  double bmr = 1;
+  double tdee = 2;
+  double daily_calories = 3;
+  double protein_g = 4;
+  double fat_g = 5;
+  double carbs_g = 6;
+}
+
+service NutritionCalculationService {
+  rpc CalculateGoal (CalculateGoalRequest) returns (CalculateGoalResponse);
+}
