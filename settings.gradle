@@ -1,0 +1,15 @@
+// Root aggregator for the Azerkalori microservices.
+//
+// Each service below is also a fully standalone Gradle project (it keeps its own
+// build.gradle + settings.gradle) so that Docker can build it in isolation.
+// This root settings.gradle simply pulls them together into ONE Gradle build so
+// that IntelliJ shows every service in a single window and Run/Debug works for
+// each one. The nested settings.gradle files are ignored when built from here.
+rootProject.name = 'azerkalori-microservices'
+
+include 'discovery-server'
+include 'api-gateway'
+include 'auth-service'
+include 'catalog-service'
+include 'nutrition-service'
+include 'tracking-service'

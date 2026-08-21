@@ -1,0 +1,15 @@
+// Root build file for the multi-module Azerkalori project.
+//
+// The root itself is NOT a Spring Boot application, so it applies no plugins.
+// Every service keeps its own complete build.gradle (plugins, dependencies,
+// versions) so it stays independently buildable by its Dockerfile. That means
+// there is intentionally some duplication across the service build files.
+//
+// Handy aggregate commands you can now run from the repo root:
+//   ./gradlew build                     -> build every service
+//   ./gradlew test                      -> test every service
+//   ./gradlew :discovery-server:bootRun -> run one service locally
+//   ./gradlew projects                  -> list all modules
+
+group = 'az.azerkalori'
+version = '1.0.0'
