@@ -5,6 +5,8 @@ import az.azerkalori.tracking.entity.FoodLog;
 import az.azerkalori.tracking.repo.DailySummaryRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -183,5 +185,42 @@ class SummaryServiceTest {
         assertEquals(2000.0, payload.get("targetCalories"));
         assertEquals(25L, payload.get("percent"));   // Math.round(...) long qaytarır
         assertEquals("OK", payload.get("level"));
+    }
+
+    // ===================== T4: @ParameterizedTest =====================
+    // Bir metod, çox hal. Aşağıdakı hər sətir AYRI test kimi işləyir.
+    // Belə OK/WARN/LIMIT sərhədlərini (80% və 100%) bir yerdə yoxlayırıq.
+
+    @ParameterizedTest(name = "{0} kcal / {1} hədəf -> {2}")
+    @CsvSource({
+            "500,  2000, OK",     // 25%  -> 80%-dən aşağı
+            "1599, 2000, OK",     // 79.95% -> hələ OK
+            "1600, 2000, WARN",   // 80%  -> sərhəd: WARN başlayır
+            "1900, 2000, WARN",   // 95%  -> WARN
+            "2000, 2000, LIMIT",  // 100% -> sərhəd: LIMIT başlayır
+            "2500, 2000, LIMIT"   // 125% -> LIMIT
+    })
+    void level_isComputedFromPercent(double calories, double target, String expectedLevel) {
+        Long userId = 9L;
+        LocalDate today = LocalDate.of(2026, 8, 22);
+
+        FoodLog entry = FoodLog.builder()
+                .userId(userId).productId(1L)
+                .calories(calories).proteinG(0.0).fatG(0.0).carbsG(0.0)
+                .logDate(today).build();
+
+        when(summaries.findByUserIdAndDay(eq(userId), eq(today)))
+                .thenReturn(java.util.Optional.empty());
+        when(plans.activePlan(userId))
+                .thenReturn(Map.of("dailyCalorieTarget", target));
+        when(summaries.save(any(DailySummary.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        // ACT
+        service.apply(userId, entry);
+
+        // CAPTURE + ASSERT: /queue/calories payload-unun level-i gözlənilənlə üst-üstə düşür
+        verify(ws).convertAndSendToUser(eq("9"), eq("/queue/calories"), payloadCaptor.capture());
+        assertEquals(expectedLevel, payloadCaptor.getValue().get("level"));
     }
 }
