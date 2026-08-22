@@ -20,6 +20,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -222,5 +223,86 @@ class SummaryServiceTest {
         // CAPTURE + ASSERT: /queue/calories payload-unun level-i gözlənilənlə üst-üstə düşür
         verify(ws).convertAndSendToUser(eq("9"), eq("/queue/calories"), payloadCaptor.capture());
         assertEquals(expectedLevel, payloadCaptor.getValue().get("level"));
+    }
+
+    // ===================== T5: həkim alerti + never() =====================
+    // Qayda: percent >= 100 VƏ doctorId != null olduqda -> həkimə /queue/alerts gedir.
+    // Burada həm "getdi" (verify), həm də "GETMƏDİ" (never) hallarını yoxlayırıq.
+
+    @Test
+    void doctorAlert_sent_whenLimitExceeded_andDoctorAssigned() {
+        Long userId = 3L;
+        LocalDate today = LocalDate.of(2026, 8, 22);
+
+        FoodLog entry = FoodLog.builder()
+                .userId(userId).productId(1L)
+                .calories(2000.0).proteinG(0.0).fatG(0.0).carbsG(0.0)
+                .logDate(today).build();
+
+        when(summaries.findByUserIdAndDay(eq(userId), eq(today)))
+                .thenReturn(java.util.Optional.empty());
+        // Hədəf 2000 + həkim təyin olunub (doctorId = 99)
+        when(plans.activePlan(userId))
+                .thenReturn(Map.of("dailyCalorieTarget", 2000, "doctorId", 99));
+        when(summaries.save(any(DailySummary.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        // ACT: 2000/2000 = 100% -> LIMIT -> həkimə alert getməlidir
+        service.apply(userId, entry);
+
+        // ASSERT: həkim "99"-a /queue/alerts mesajı gedib
+        verify(ws).convertAndSendToUser(eq("99"), eq("/queue/alerts"), payloadCaptor.capture());
+        Map<String, Object> alert = payloadCaptor.getValue();
+        assertEquals(userId, alert.get("patientId"));   // xəstənin id-si
+        assertEquals(100L, alert.get("percent"));
+    }
+
+    @Test
+    void doctorAlert_notSent_whenUnderLimit() {
+        Long userId = 3L;
+        LocalDate today = LocalDate.of(2026, 8, 22);
+
+        FoodLog entry = FoodLog.builder()
+                .userId(userId).productId(1L)
+                .calories(500.0).proteinG(0.0).fatG(0.0).carbsG(0.0)
+                .logDate(today).build();
+
+        when(summaries.findByUserIdAndDay(eq(userId), eq(today)))
+                .thenReturn(java.util.Optional.empty());
+        when(plans.activePlan(userId))
+                .thenReturn(Map.of("dailyCalorieTarget", 2000, "doctorId", 99));
+        when(summaries.save(any(DailySummary.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        // ACT: 500/2000 = 25% -> LIMIT deyil -> alert getMƏMƏLİdir
+        service.apply(userId, entry);
+
+        // ASSERT: həkimə HEÇ VAXT /queue/alerts getmədi
+        verify(ws, never()).convertAndSendToUser(eq("99"), eq("/queue/alerts"), any());
+    }
+
+    @Test
+    void doctorAlert_notSent_whenNoDoctorAssigned() {
+        Long userId = 3L;
+        LocalDate today = LocalDate.of(2026, 8, 22);
+
+        FoodLog entry = FoodLog.builder()
+                .userId(userId).productId(1L)
+                .calories(2500.0).proteinG(0.0).fatG(0.0).carbsG(0.0)
+                .logDate(today).build();
+
+        when(summaries.findByUserIdAndDay(eq(userId), eq(today)))
+                .thenReturn(java.util.Optional.empty());
+        // Hədəf var, amma HƏKİM YOXDUR (doctorId ötürülmür)
+        when(plans.activePlan(userId))
+                .thenReturn(Map.of("dailyCalorieTarget", 2000));
+        when(summaries.save(any(DailySummary.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        // ACT: 125% -> LIMIT, amma həkim yoxdur -> alert getMƏMƏLİdir
+        service.apply(userId, entry);
+
+        // ASSERT: heç bir /queue/alerts göndərilmədi
+        verify(ws, never()).convertAndSendToUser(any(), eq("/queue/alerts"), any());
     }
 }
