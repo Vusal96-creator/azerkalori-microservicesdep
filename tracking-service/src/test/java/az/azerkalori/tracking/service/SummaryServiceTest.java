@@ -5,6 +5,8 @@ import az.azerkalori.tracking.entity.FoodLog;
 import az.azerkalori.tracking.repo.DailySummaryRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -40,6 +42,11 @@ class SummaryServiceTest {
     // onun içinə (constructor vasitəsilə) yerləşdirir.
     @InjectMocks
     private SummaryService service;
+
+    // @Captor -> ws-ə göndərilən arqumenti "tutmaq" (capture) üçün.
+    // ws.convertAndSendToUser(user, dest, PAYLOAD) -> PAYLOAD Map-ini yaxalayacağıq.
+    @Captor
+    private ArgumentCaptor<Map<String, Object>> payloadCaptor;
 
     @Test
     void firstFoodLog_createsSummary_andSumsCalories() {
@@ -139,5 +146,42 @@ class SummaryServiceTest {
         // ASSERT (verify): istifadəçiyə /queue/calories-ə DƏQİQ 1 dəfə mesaj gedib
         verify(ws, times(1))
                 .convertAndSendToUser(eq("7"), eq("/queue/calories"), any());
+    }
+
+    // ===================== T3: ArgumentCaptor =====================
+    // verify() yalnız "çağırıldımı?" deyir. ArgumentCaptor isə çağırışın
+    // İÇİNDƏKİ dəyəri tutub yoxlamağa imkan verir (payload düzgündürmü?).
+
+    @Test
+    void push_payload_hasCorrectPercentAndLevel() {
+        // ARRANGE: istifadəçinin gündəlik hədəfi 2000 kcal
+        Long userId = 5L;
+        LocalDate today = LocalDate.of(2026, 8, 22);
+
+        FoodLog entry = FoodLog.builder()
+                .userId(userId).productId(1L)
+                .calories(500.0).proteinG(20.0).fatG(5.0).carbsG(25.0)
+                .logDate(today).build();
+
+        when(summaries.findByUserIdAndDay(eq(userId), eq(today)))
+                .thenReturn(java.util.Optional.empty());
+        // dailyCalorieTarget = 2000 -> targetCalories təyin olunur
+        when(plans.activePlan(userId))
+                .thenReturn(Map.of("dailyCalorieTarget", 2000));
+        when(summaries.save(any(DailySummary.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        // ACT
+        service.apply(userId, entry);
+
+        // ASSERT: ws-ə gedən payload-u TUT
+        verify(ws).convertAndSendToUser(eq("5"), eq("/queue/calories"), payloadCaptor.capture());
+        Map<String, Object> payload = payloadCaptor.getValue();
+
+        // 500 / 2000 = 25% -> level "OK" (80%-dən aşağı)
+        assertEquals(500.0, payload.get("calories"));
+        assertEquals(2000.0, payload.get("targetCalories"));
+        assertEquals(25L, payload.get("percent"));   // Math.round(...) long qaytarır
+        assertEquals("OK", payload.get("level"));
     }
 }
