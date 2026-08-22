@@ -1,0 +1,143 @@
+package az.azerkalori.tracking.service;
+
+import az.azerkalori.tracking.entity.DailySummary;
+import az.azerkalori.tracking.entity.FoodLog;
+import az.azerkalori.tracking.repo.DailySummaryRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+
+import java.time.LocalDate;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+// @ExtendWith(MockitoExtension.class) -> JUnit 5-ə deyir ki, Mockito-nu bu test
+// class-ında işə salsın (mock-ları avtomatik yaratsın, @InjectMocks-a yerləşdirsin).
+@ExtendWith(MockitoExtension.class)
+class SummaryServiceTest {
+
+    // @Mock -> saxta (mock) obyekt yaradır. Real DB/şəbəkə YOXDUR.
+    // Biz hər birinin nə qaytaracağını testdə özümüz deyəcəyik.
+    @Mock
+    private DailySummaryRepository summaries;
+
+    @Mock
+    private NutritionPlanClient plans;
+
+    @Mock
+    private SimpMessagingTemplate ws;
+
+    // @InjectMocks -> real SummaryService yaradır və yuxarıdakı 3 mock-u
+    // onun içinə (constructor vasitəsilə) yerləşdirir.
+    @InjectMocks
+    private SummaryService service;
+
+    @Test
+    void firstFoodLog_createsSummary_andSumsCalories() {
+        // ---------- ARRANGE (hazırlıq) ----------
+        Long userId = 1L;
+        LocalDate today = LocalDate.of(2026, 8, 22);
+
+        // İstifadəçinin bir qida qeydi (500 kcal, 30q protein)
+        FoodLog entry = FoodLog.builder()
+                .userId(userId)
+                .productId(10L)
+                .calories(500.0)
+                .proteinG(30.0)
+                .fatG(10.0)
+                .carbsG(40.0)
+                .logDate(today)
+                .build();
+
+        // Bu istifadəçi üçün həmin gün HƏLƏ summary yoxdur -> Optional.empty()
+        when(summaries.findByUserIdAndDay(eq(userId), eq(today)))
+                .thenReturn(java.util.Optional.empty());
+
+        // Yeni summary yaradılarkən nutrition-plan sorğusu boş qayıtsın
+        // (hədəf kalori təyin olunmasın)
+        when(plans.activePlan(userId)).thenReturn(Map.of());
+
+        // save(...) çağırılanda -> ötürülən obyekti olduğu kimi geri qaytar
+        when(summaries.save(any(DailySummary.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        // ---------- ACT (icra) ----------
+        DailySummary result = service.apply(userId, entry);
+
+        // ---------- ASSERT (yoxlama) ----------
+        assertEquals(500.0, result.getCalories());
+        assertEquals(30.0, result.getProteinG());
+        assertEquals(10.0, result.getFatG());
+        assertEquals(40.0, result.getCarbsG());
+        assertEquals(userId, result.getUserId());
+        assertEquals(today, result.getDay());
+    }
+
+    // ===================== T2: null edge-case + verify =====================
+
+    @Test
+    void nullMacros_areTreatedAsZero_noNpe() {
+        // ARRANGE: dəyərlərin BƏZİSİ null (məs. protein/fat/carbs qeyd olunmayıb)
+        Long userId = 1L;
+        LocalDate today = LocalDate.of(2026, 8, 22);
+
+        FoodLog entry = FoodLog.builder()
+                .userId(userId)
+                .productId(10L)
+                .calories(200.0)   // yalnız kalori var
+                .proteinG(null)    // null
+                .fatG(null)        // null
+                .carbsG(null)      // null
+                .logDate(today)
+                .build();
+
+        when(summaries.findByUserIdAndDay(eq(userId), eq(today)))
+                .thenReturn(java.util.Optional.empty());
+        when(plans.activePlan(userId)).thenReturn(Map.of());
+        when(summaries.save(any(DailySummary.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        // ACT: null-lar NPE atmamalıdır (safe() 0-a çevirir)
+        DailySummary result = service.apply(userId, entry);
+
+        // ASSERT: null-lar 0 kimi hesablanıb
+        assertEquals(200.0, result.getCalories());
+        assertEquals(0.0, result.getProteinG());
+        assertEquals(0.0, result.getFatG());
+        assertEquals(0.0, result.getCarbsG());
+    }
+
+    @Test
+    void apply_sendsWebSocketUpdateToUser() {
+        // ARRANGE
+        Long userId = 7L;
+        LocalDate today = LocalDate.of(2026, 8, 22);
+
+        FoodLog entry = FoodLog.builder()
+                .userId(userId).productId(1L)
+                .calories(300.0).proteinG(20.0).fatG(5.0).carbsG(25.0)
+                .logDate(today).build();
+
+        when(summaries.findByUserIdAndDay(eq(userId), eq(today)))
+                .thenReturn(java.util.Optional.empty());
+        when(plans.activePlan(userId)).thenReturn(Map.of());
+        when(summaries.save(any(DailySummary.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        // ACT
+        service.apply(userId, entry);
+
+        // ASSERT (verify): istifadəçiyə /queue/calories-ə DƏQİQ 1 dəfə mesaj gedib
+        verify(ws, times(1))
+                .convertAndSendToUser(eq("7"), eq("/queue/calories"), any());
+    }
+}
