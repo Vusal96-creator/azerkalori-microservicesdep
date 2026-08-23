@@ -266,8 +266,25 @@
 
   <div id="toasts"></div>
 
+  <!-- CHATBOT (RAG · n8n + Qdrant + Groq) -->
+  <button id="chatFab" class="chat-fab" aria-label="Köməkçi">💬</button>
+  <div id="chatPanel" class="chat-panel hidden">
+    <div class="chat-head">
+      <span>🥗 AzərKalori köməkçi</span>
+      <button id="chatClose" class="chat-close" aria-label="Bağla">×</button>
+    </div>
+    <div id="chatBody" class="chat-body">
+      <div class="chat-msg bot">Salam! Qida, kalori və pəhriz haqqında sual ver 😊</div>
+    </div>
+    <form id="chatForm" class="chat-input">
+      <input id="chatText" type="text" placeholder="Sualını yaz..." autocomplete="off" />
+      <button type="submit" class="btn sm">Göndər</button>
+    </form>
+  </div>
+
   <script src="/js/vendor/sockjs.min.js"></script>
   <script src="/js/vendor/stomp.umd.min.js"></script>
   <script src="/js/app.js"></script>
+  <script src="/js/chatbot.js"></script>
 </body>
 </html>
