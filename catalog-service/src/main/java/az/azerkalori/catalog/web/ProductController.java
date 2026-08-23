@@ -1,6 +1,7 @@
 package az.azerkalori.catalog.web;
 
 import az.azerkalori.catalog.client.EnrichmentService;
+import az.azerkalori.catalog.client.FoodSearchService;
 import az.azerkalori.catalog.entity.Product;
 import az.azerkalori.catalog.repo.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +19,18 @@ public class ProductController {
 
     private final ProductRepository products;
     private final EnrichmentService enrichment;
+    private final FoodSearchService foodSearch;
 
     @GetMapping
     public List<Product> all() {
         return products.findAll();
+    }
+
+    // Ada görə axtarış: əvvəlcə lokal kataloq, tapılmasa OpenFoodFacts-dan gətirir.
+    // Nümunə: GET /api/products/search?name=alma
+    @GetMapping("/search")
+    public List<Product> search(@RequestParam String name) {
+        return foodSearch.search(name);
     }
 
     @GetMapping("/{id}")
