@@ -29,6 +29,14 @@ app:
     enabled: ${MAIL_ENABLED:true}
     from: ${MAIL_FROM:AzərKalori <no-reply@azerkalori.az>}
     app-url: ${APP_URL:http://localhost}
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY:}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
+  currency: ${STRIPE_CURRENCY:usd}
+  pro-amount-cents: ${STRIPE_PRO_AMOUNT_CENTS:999}
+  pro-days: ${STRIPE_PRO_DAYS:30}
+app:
+  frontend-url: ${APP_URL:http://localhost}
 jwt:
   secret: ${JWT_SECRET:local-dev-secret-min-32-chars-long-please}
 eureka:

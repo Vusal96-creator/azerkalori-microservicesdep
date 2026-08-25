@@ -9,13 +9,13 @@ spring:
       routes:
         - id: auth
           uri: lb://AUTH-SERVICE
-          predicates: [ "Path=/api/auth/**" ]
+          predicates: [ "Path=/api/auth/**,/api/billing/**" ]
         - id: catalog
           uri: lb://CATALOG-SERVICE
           predicates: [ "Path=/api/products/**,/graphql/**" ]
         - id: tracking
           uri: lb://TRACKING-SERVICE
-          predicates: [ "Path=/api/logs/**,/api/summary/**,/ws/**" ]
+          predicates: [ "Path=/api/logs/**,/api/summary/**,/api/chat/**,/ws/**" ]
         - id: nutrition
           uri: lb://NUTRITION-SERVICE
           predicates: [ "Path=/api/goals/**,/api/plans/**" ]

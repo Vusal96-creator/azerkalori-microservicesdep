@@ -26,6 +26,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
             "/api/auth/register",
             "/api/auth/ping",
             "/api/goals/calculate",
+            "/api/billing/webhook",
             "/ws");
 
     private final SecretKey key;

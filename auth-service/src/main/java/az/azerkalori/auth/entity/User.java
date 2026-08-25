@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
+
 @Entity
 @Table(name = "users")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
@@ -26,6 +28,11 @@ public class User {
     private Role role;
 
     private Long doctorId;
+
+    // Pro abunə (Stripe ödənişindən sonra aktivləşir)
+    @Column(nullable = false)
+    private boolean pro;
+    private Instant proUntil;
 
     private Integer age;
     private Double weightKg;
