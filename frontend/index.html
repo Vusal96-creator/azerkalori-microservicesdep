@@ -175,7 +175,10 @@
 
         <div class="card">
           <h3>Qida əlavə et</h3>
-          <p class="sub">Məhsul seç, qramı yaz və jurnalına əlavə et.</p>
+          <p class="sub">Kataloqdan seç, ya da adını yaz — kataloqda yoxdursa API-dən kalorisi gətirilir.</p>
+          <label class="field"><span class="lab">Qida axtar</span><input id="foodSearch" type="text" placeholder="məs. nutella" /></label>
+          <button class="btn ghost block" id="foodSearchBtn" type="button">🔎 Axtar və siyahıya əlavə et</button>
+          <div style="height:12px"></div>
           <label class="field"><span class="lab">Məhsul</span><select id="prodSelect"></select></label>
           <label class="field"><span class="lab">Miqdar (qram)</span><input id="grams" type="number" value="150" /></label>
           <button class="btn block" id="logBtn">Jurnala əlavə et</button>
@@ -283,6 +286,9 @@
   </footer>
 
   <div id="toasts"></div>
+
+  <!-- Telegram bot (sol-aşağı) — kalori qeydini Telegram-dan da et -->
+  <a id="tgLink" class="tg-fab" href="https://t.me/" target="_blank" rel="noopener">📲 Telegram-da qeyd et</a>
 
   <!-- DOCTOR CHAT (WebSocket · yalnız Pro pasiyent ↔ öz həkimi) -->
   <div id="docChat" class="chat-panel hidden" style="right:96px">

@@ -222,17 +222,38 @@ async function loadProducts() {
 }
 
 async function loadSummary() {
-  try { applyLive(await api("/api/summary/today")); } catch (e) {}
+  try { applyLive(await ensureTarget(await api("/api/summary/today"))); } catch (e) {}
+}
+
+// Pəhriz planı yoxdursa, gündəlik hədəfi istifadəçinin profilindən (TDEE) hesabla.
+async function ensureTarget(s) {
+  s = s || {};
+  if (s.targetCalories && s.targetCalories > 0) { state.dailyTarget = s.targetCalories; return s; }
+  try {
+    const me = await api("/api/auth/me");
+    const g = await api("/api/goals/calculate", { method: "POST", body: JSON.stringify({
+      age: me.age || 30, weightKg: me.weightKg || 70, heightCm: me.heightCm || 170,
+      sex: me.sex || "MALE", activityLevel: me.activityLevel || "MODERATE", goal: "MAINTAIN" }) });
+    state.dailyTarget = Math.round(g.tdee);
+    s.targetCalories = state.dailyTarget;
+  } catch (e) {}
+  return s;
 }
 
 function applyLive(s) {
-  const target = s.targetCalories || 0;
+  const target = s.targetCalories || state.dailyTarget || 0;
   $("#calNow").textContent = Math.round(s.calories || 0);
   $("#calTarget").textContent = Math.round(target);
-  const pct = s.percent || 0;
+  // Server hədəfi 0-dırsa, faizi/səviyyəni müştəridə hesabla (fallback hədəflə).
+  let pct = s.percent || 0;
+  let level = s.level;
+  if ((!s.targetCalories || s.targetCalories <= 0) && target > 0) {
+    pct = Math.round(100 * (s.calories || 0) / target);
+    level = pct >= 100 ? "LIMIT" : pct >= 80 ? "WARN" : "OK";
+  }
   const ring = $("#ring");
   ring.style.setProperty("--p", Math.min(pct, 100));
-  const color = s.level === "LIMIT" ? "var(--red)" : s.level === "WARN" ? "var(--amber)" : "var(--green)";
+  const color = level === "LIMIT" ? "var(--red)" : level === "WARN" ? "var(--amber)" : "var(--green)";
   ring.style.setProperty("--c", color);
   $("#ringPct").textContent = pct + "%";
   $("#mP").textContent = Math.round(s.proteinG || 0);
@@ -242,7 +263,8 @@ function applyLive(s) {
   $("#barF").style.width = Math.min((s.fatG || 0), 200) / 2 + "%";
   $("#barC").style.width = Math.min((s.carbsG || 0), 400) / 4 + "%";
   const st = $("#liveState");
-  if (st) st.textContent = s.level === "LIMIT" ? "⚠ Limit keçildi!" : s.level === "WARN" ? "Diqqət: 80%-i keçdin" : "Canlı sayğac (WebSocket)";
+  if (st) st.textContent = level === "LIMIT" ? "⚠ Limit keçildi! (" + Math.round(s.calories || 0) + " / " + Math.round(target) + " kkal)"
+    : level === "WARN" ? "Diqqət: 80%-i keçdin (" + pct + "%)" : "Günlük limitin: " + Math.round(target) + " kkal";
 }
 
 async function loadToday() {
@@ -455,6 +477,26 @@ document.addEventListener("click", (e) => {
   const b = e.target.closest("[data-chat]");
   if (!b) return;
   openDocChat(+b.dataset.chat, b.dataset.name || "Pasiyent");
+});
+
+// ---------- Qidanı ada görə axtar (kataloq + API) ----------
+$("#foodSearchBtn") && $("#foodSearchBtn").addEventListener("click", async () => {
+  const name = $("#foodSearch").value.trim();
+  if (!name) return toast("Qida adını yaz", "warn");
+  try {
+    const found = await api("/api/products/search?name=" + encodeURIComponent(name));
+    if (!found || !found.length) return toast("Bu qida tapılmadı", "warn");
+    const sel = $("#prodSelect");
+    found.slice().reverse().forEach((p) => {
+      if (!state.products.find((x) => x.id === p.id)) state.products.unshift(p);
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.name + " — " + Math.round(p.calories) + " kkal";
+      sel.insertBefore(opt, sel.firstChild);
+    });
+    sel.value = found[0].id;
+    toast(found.length + " nəticə tapıldı və siyahıya əlavə olundu", "good");
+  } catch (e) { toast("Axtarış xətası: " + e.message, "bad"); }
 });
 
 if (state.token) connectWs();
