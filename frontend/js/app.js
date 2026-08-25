@@ -91,12 +91,47 @@ $("#calcBtn").addEventListener("click", async () => {
 function renderCalc(r) {
   const pk = r.proteinG * 4, fk = r.fatG * 9, ck = r.carbsG * 4;
   const tot = Math.max(pk + fk + ck, 1);
+
+  const tdee = r.tdee;
+  const maintain = Math.round(tdee);
+  const lose = Math.round(tdee - 500);
+  const gain = Math.round(tdee + 500);
+
+  // Çəki hədəfi + müddətə görə fərdi gündəlik hədəf
+  const goal = $("#c_goal").value;
+  const targetKg = +($("#c_targetKg") ? $("#c_targetKg").value : 0) || 0;
+  let weeks = Math.max(1, Math.round(+($("#c_weeks") ? $("#c_weeks").value : 1) || 1));
+  let chosen = maintain, customHtml = "", warn = "";
+
+  if (goal !== "MAINTAIN" && targetKg > 0) {
+    // 1 kq yağ ≈ 7700 kkal
+    let rawDelta = (targetKg * 7700) / (weeks * 7);
+    let delta = Math.min(Math.max(rawDelta, 250), 1000); // gündəlik təhlükəsiz aralıq
+    if (rawDelta > 1000) warn = "⚠ Bu qədər sürətli " + (goal === "LOSE" ? "arıqlamaq" : "kökəlmək") +
+      " sağlam deyil — müddəti uzat. Təhlükəsiz maksimum götürüldü (gündə 1000 kkal fərq).";
+    chosen = goal === "LOSE" ? Math.round(tdee - delta) : Math.round(tdee + delta);
+    customHtml =
+      '<div class="stat-row" style="margin-top:8px"><span>Sənin hədəfin</span>' +
+      '<b>' + targetKg + ' kq / ' + weeks + ' həftə</b></div>' +
+      '<div class="kcal-big" style="margin-top:6px">' + chosen + ' <small>kkal / gün</small></div>' +
+      (warn ? '<p class="sub" style="color:var(--amber)">' + warn + '</p>' : '');
+  } else if (goal === "LOSE") {
+    chosen = lose;
+  } else if (goal === "GAIN") {
+    chosen = gain;
+  }
+
   $("#calcResult").innerHTML =
     '<div class="ring-wrap" style="align-items:flex-start">' +
       '<div style="flex:1">' +
-        '<div class="kcal-big">' + r.dailyCalories + ' <small>kkal / gün</small></div>' +
-        '<div class="stat-row"><span>BMR (baza)</span><b>' + r.bmr + ' kkal</b></div>' +
-        '<div class="stat-row"><span>TDEE (aktivliklə)</span><b>' + r.tdee + ' kkal</b></div>' +
+        '<div class="kcal-big">' + chosen + ' <small>kkal / gün (məqsədin üçün)</small></div>' +
+        customHtml +
+        '<div class="stat-row"><span>BMR — gündəlik <b>minimum</b> (istirahət)</span><b>' + r.bmr + ' kkal</b></div>' +
+        '<div class="stat-row"><span>TDEE — gündəlik <b>saxlama</b> (aktivliklə)</span><b>' + r.tdee + ' kkal</b></div>' +
+        '<hr style="border:none;border-top:1px solid #eee;margin:10px 0" />' +
+        '<div class="stat-row"><span>🟰 Saxlamaq</span><b>' + maintain + ' kkal</b></div>' +
+        '<div class="stat-row"><span>🔻 Arıqlamaq (−500 = həftədə ~0.5 kq)</span><b>' + lose + ' kkal</b></div>' +
+        '<div class="stat-row"><span>🔺 Kökəlmək (+500 = həftədə ~0.5 kq)</span><b>' + gain + ' kkal</b></div>' +
       '</div>' +
       '<div style="flex:1">' +
         macroBar("p", "Protein", r.proteinG, pk / tot * 100) +

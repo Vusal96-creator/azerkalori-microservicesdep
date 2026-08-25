@@ -34,6 +34,11 @@ public class ChatAccessService {
             String meRole = str(me.get("role"));
             String peerRole = str(peer.get("role"));
 
+            // Admin hər kəslə yazışa bilər (tam giriş).
+            if ("ADMIN".equals(meRole) || "ADMIN".equals(peerRole)) {
+                return true;
+            }
+
             Map<String, Object> doctor;
             Long doctorId;
             Map<String, Object> patient;

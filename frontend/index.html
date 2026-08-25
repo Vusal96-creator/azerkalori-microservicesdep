@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AzərKalori — Kalori Hesablama və İzləmə</title>
+  <title>Kalori Kolik — Kalori Hesablama və İzləmə</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="/css/styles.css" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥗</text></svg>" />
@@ -12,7 +12,7 @@
 
   <header class="nav">
     <div class="container nav-inner">
-      <div class="brand">🥗 Azər<span>Kalori</span></div>
+      <div class="brand">🥗 Kalori<span>Kolik</span></div>
       <nav class="nav-links" id="navLinks">
         <a data-nav="home" class="active">Kalkulyator</a>
         <a data-nav="dashboard" class="auth-only hidden">Panelim</a>
@@ -37,12 +37,7 @@
             yediklərini izlə. Həkimin sənə pəhriz planı təyin edə bilər.</p>
           <div class="cta-row">
             <button class="btn" data-scroll="calc">Kalorimi hesabla</button>
-            <button class="btn ghost" data-nav="auth">Hesab yarat</button>
-          </div>
-          <div class="badges">
-            <div class="badge">🔬 <b>Mifflin-St Jeor</b> düsturu</div>
-            <div class="badge">⚡ Canlı <b>WebSocket</b> sayğac</div>
-            <div class="badge">👨‍⚕️ Həkim <b>pəhriz planı</b></div>
+            <button class="btn ghost guest-only" data-nav="auth">Hesab yarat</button>
           </div>
         </div>
 
@@ -76,11 +71,16 @@
           <label class="field">
             <span class="lab">Məqsəd</span>
             <select id="c_goal">
-              <option value="LOSE">Arıqlamaq (-15%)</option>
+              <option value="LOSE">Arıqlamaq</option>
               <option value="MAINTAIN" selected>Saxlamaq</option>
-              <option value="GAIN">Kökəlmək (+15%)</option>
+              <option value="GAIN">Kökəlmək</option>
             </select>
           </label>
+
+          <div class="row" id="goalExtra">
+            <label class="field"><span class="lab">Hədəf dəyişiklik (kq)</span><input id="c_targetKg" type="number" value="4" min="0" /></label>
+            <label class="field"><span class="lab">Müddət (həftə, min 1)</span><input id="c_weeks" type="number" value="4" min="1" /></label>
+          </div>
 
           <button class="btn block" id="calcBtn">Hesabla</button>
         </div>
@@ -90,8 +90,17 @@
     <div class="container" style="margin-top:26px">
       <div class="card">
         <h3>Nəticə</h3>
-        <p class="sub">gRPC hesablama mühərriki (nutrition-service) tərəfindən hesablanır.</p>
         <div id="calcResult"><div class="result-empty">Hesablamaq üçün “Hesabla” düyməsini bas.</div></div>
+      </div>
+
+      <div class="card" style="margin-top:20px">
+        <h3>BMR və TDEE nədir?</h3>
+        <p class="sub"><b>BMR</b> — orqanizmin tam istirahətdə (heç nə etmədən) sağ qalmaq üçün yandırdığı
+          <b>minimum</b> gündəlik kaloridir. Bundan az almaq sağlam deyil.</p>
+        <p class="sub"><b>TDEE</b> — BMR üstəgəl gündəlik hərəkət/idmanla yandırdığın kaloridir, yəni
+          <b>çəkini saxlamaq</b> üçün lazım olan gündəlik miqdar.</p>
+        <p class="sub">Arıqlamaq üçün TDEE-dən az, kökəlmək üçün çox yeyirsən.
+          Həftədə ~0.5 kq dəyişmək üçün gündə təxminən 500 kkal fərq kifayətdir (ən sağlam temp).</p>
       </div>
     </div>
   </section>
@@ -182,7 +191,7 @@
       </div>
 
       <div class="card" style="margin-top:20px">
-        <h3>AzərKalori Pro <span id="proBadge" class="chip hidden">Pro ✓</span></h3>
+        <h3>Kalori Kolik Pro <span id="proBadge" class="chip hidden">Pro ✓</span></h3>
         <p class="sub" id="proStatus">Pro ilə şəxsi həkiminlə birbaşa yazışa bilərsən.</p>
         <div class="cta-row">
           <button class="btn" id="buyProBtn">Pro al · 1 ₼</button>
@@ -270,7 +279,7 @@
   </section>
 
   <footer class="footer">
-    <div class="container">AzərKalori · Spring Cloud mikroservis layihəsi · Eureka · Gateway · gRPC · GraphQL · WebSocket · Redis · Resilience4j</div>
+    <div class="container">Kalori Kolik · Sağlam qidalanma və kalori izləmə</div>
   </footer>
 
   <div id="toasts"></div>
@@ -292,7 +301,7 @@
   <button id="chatFab" class="chat-fab" aria-label="Köməkçi">💬</button>
   <div id="chatPanel" class="chat-panel hidden">
     <div class="chat-head">
-      <span>🥗 AzərKalori köməkçi</span>
+      <span>🥗 Kalori Kolik köməkçi</span>
       <button id="chatClose" class="chat-close" aria-label="Bağla">×</button>
     </div>
     <div id="chatBody" class="chat-body">
