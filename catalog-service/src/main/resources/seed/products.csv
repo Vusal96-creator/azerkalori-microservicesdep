@@ -1,0 +1,238 @@
+name,brand,category,calories,proteinG,fatG,carbsG
+# Dəyərlər 100 q (içkilər üçün 100 ml) üçündür. Mənbə: standart qidalanma cədvəlləri (USDA/WHO tipli açıq faktlar).
+# --- Milli yeməklər ---
+Plov (Azərbaycan),Milli,MILLI,168,3.5,4.2,29
+Toyuq plov,Milli,MILLI,180,7.0,5.5,26
+Şah plov,Milli,MILLI,210,5.0,8.0,30
+Dolma (yarpaq),Milli,MILLI,145,5.0,9.0,11
+Badımcan dolması,Milli,MILLI,130,3.5,8.0,11
+Düşbərə,Milli,MILLI,195,8.0,7.5,24
+Qutab (ət),Milli,MILLI,210,8.5,9.0,24
+Qutab (göy),Milli,MILLI,175,4.5,6.0,26
+Kabab (quzu),Milli,MEAT,250,22,18,0
+Lülə kabab,Milli,MEAT,260,20,20,2
+Toyuq kabab,Milli,MEAT,190,25,10,0
+Tikə kabab,Milli,MEAT,230,21,16,0
+Piti,Milli,MILLI,180,9.0,11,10
+Bozbaş,Milli,MILLI,160,8.5,9.5,11
+Xəngəl,Milli,MILLI,205,7.0,8.0,26
+Sülü xəngəl,Milli,MILLI,190,6.5,7.0,25
+Kükü,Milli,MILLI,150,8.0,11,4
+Çığırtma,Milli,MILLI,175,10,13,3
+Lavangi (toyuq),Milli,MILLI,220,18,14,6
+Balıq lavangi,Milli,MILLI,205,17,13,5
+Buğlama,Milli,MILLI,140,14,8,3
+Bozartma,Milli,MILLI,170,12,11,5
+Qovurma (quzu),Milli,MEAT,240,18,18,1
+Sac (ət-tərəvəz),Milli,MILLI,180,12,11,7
+Şorba (toyuq),Milli,MILLI,65,5.0,2.5,6.0
+Dovğa,Milli,MILLI,55,3.0,2.5,5.5
+Ovdux,Milli,MILLI,50,2.5,2.0,5.0
+Xəşil,Milli,MILLI,210,4.0,7.0,33
+Firni,Milli,SWEETS,120,3.5,3.0,20
+Süddaş,Milli,SWEETS,110,3.0,2.5,19
+# --- Un və çörək məhsulları ---
+Ağ çörək,,BAKERY,265,9.0,3.2,49
+Qara çörək (çovdar),,BAKERY,259,8.5,3.3,48
+Təndir çörəyi,Milli,BAKERY,265,8.5,1.2,53
+Lavaş,Milli,BAKERY,275,9.0,1.0,56
+Baton,,BAKERY,264,7.5,2.9,50
+Şəkər çörəyi,Milli,BAKERY,360,9.0,6.0,66
+Buğda unu,,BAKERY,364,10,1.0,76
+Makaron (bişməmiş),,GRAINS,371,13,1.5,75
+Makaron (bişmiş),,GRAINS,131,5.0,1.1,25
+Əriştə,,GRAINS,138,4.5,2.1,25
+Kraker,,BAKERY,421,9.0,12,68
+Peçenye,,SWEETS,417,7.0,14,68
+Vafli,,SWEETS,430,6.0,20,60
+Keks,,SWEETS,350,6.0,15,50
+Piroq (ətli),,BAKERY,270,9.0,12,31
+Suxarı,,BAKERY,395,11,6.0,72
+# --- Şirniyyat və milli desertlər ---
+Paxlava,Milli,SWEETS,430,8.0,22,51
+Şəkərbura,Milli,SWEETS,405,7.0,18,54
+Şəkərpara,Milli,SWEETS,395,5.0,15,60
+Mütəki,Milli,SWEETS,410,6.0,20,53
+Qurabiyə,Milli,SWEETS,420,6.0,21,54
+Halva (una),Milli,SWEETS,470,7.0,25,55
+Halva (günəbaxan),,SWEETS,516,13,30,50
+Şokolad (südlü),,SWEETS,535,7.6,30,59
+Qara şokolad,,SWEETS,546,6.0,31,61
+Konfet (karamel),,SWEETS,382,0.0,0.1,97
+Mürəbbə,,SWEETS,265,0.4,0.1,66
+Cem,,SWEETS,250,0.5,0.1,63
+Bal,Təbii,OTHER,304,0.3,0.0,82
+Şəkər,,SWEETS,387,0.0,0.0,100
+# --- Dondurma ---
+Dondurma (plombir),,ICECREAM,227,3.5,15,20
+Dondurma (südlü),,ICECREAM,126,3.8,3.5,20
+Dondurma (şokoladlı),,ICECREAM,216,3.8,11,28
+Dondurma (meyvəli/sorbet),,ICECREAM,130,0.5,0.1,32
+Eskimo,,ICECREAM,270,4.0,20,20
+# --- Süd məhsulları ---
+Süd (3.2%),,DAIRY,60,3.0,3.2,4.7
+Süd (1.5%),,DAIRY,44,3.0,1.5,4.7
+Süd (yağsız),,DAIRY,34,3.4,0.1,5.0
+Kefir (2.5%),,DAIRY,51,3.4,2.5,4.0
+Qatıq,Milli,DAIRY,60,3.5,3.2,4.5
+Süzmə,Milli,DAIRY,90,9.0,4.0,4.0
+Ayran,Milli,DRINKS,38,1.7,2.0,3.0
+Smetana (20%),,DAIRY,206,2.8,20,3.2
+Xama,,DAIRY,193,2.5,19,3.0
+Qaymaq,,DAIRY,300,2.5,30,4.0
+Kərə yağı,,DAIRY,717,0.9,81,0.1
+Motal pendiri,Milli,DAIRY,290,19,24,1.5
+Hollandiya pendiri,,DAIRY,350,25,27,0.0
+Feta pendiri,,DAIRY,264,14,21,4.0
+Süzmə pendir (kottec),,DAIRY,98,11,4.3,3.4
+Yoğurt (meyvəli),,DAIRY,90,4.0,2.0,13
+Kondensə süd,,DAIRY,320,7.0,8.0,55
+# --- Ət və ət məhsulları ---
+Mal əti,,MEAT,187,18,12,0.0
+Dana əti,,MEAT,158,20,8.0,0.0
+Quzu əti,,MEAT,203,16,15,0.0
+Toyuq döşü,,MEAT,165,31,3.6,0.0
+Toyuq budu,,MEAT,185,17,12,0.0
+Hind quşu əti,,MEAT,189,29,7.0,0.0
+Qaraciyər (mal),,MEAT,135,20,3.6,4.0
+Kolbasa (bişmiş),,MEAT,300,12,27,2.0
+Sosiska,,MEAT,266,11,24,3.0
+Bastırma,,MEAT,240,30,12,1.0
+Toyuq yumurtası,Təbii,OTHER,155,13,11,1.1
+Bildirçin yumurtası,Təbii,OTHER,168,13,11,0.6
+# --- Balıq və dəniz məhsulları ---
+Qızılbalıq (somon),,FISH,208,20,13,0.0
+Nərə balığı,,FISH,105,17,4.0,0.0
+Siyənək,,FISH,158,18,9.0,0.0
+Ton balığı,,FISH,132,28,1.0,0.0
+Skumbriya,,FISH,205,19,14,0.0
+Karides (krevet),,FISH,99,24,0.3,0.2
+Qara kürü,,FISH,264,24,18,4.0
+# --- Meyvələr ---
+Alma,Təbii,FRUITS,52,0.3,0.2,14
+Armud,Təbii,FRUITS,57,0.4,0.1,15
+Banan,Təbii,FRUITS,89,1.1,0.3,23
+Portağal,Təbii,FRUITS,47,0.9,0.1,12
+Naringi,Təbii,FRUITS,53,0.8,0.3,13
+Limon,Təbii,FRUITS,29,1.1,0.3,9.0
+Qreypfrut,Təbii,FRUITS,42,0.8,0.1,11
+Üzüm,Təbii,FRUITS,69,0.7,0.2,18
+Şaftalı,Təbii,FRUITS,39,0.9,0.3,10
+Ərik,Təbii,FRUITS,48,1.4,0.4,11
+Gavalı,Təbii,FRUITS,46,0.7,0.3,11
+Nar,Təbii,FRUITS,83,1.7,1.2,19
+Xurma,Təbii,FRUITS,70,0.6,0.2,18
+Əncir,Təbii,FRUITS,74,0.8,0.3,19
+Qarpız,Təbii,FRUITS,30,0.6,0.2,8.0
+Yemiş,Təbii,FRUITS,34,0.8,0.2,8.0
+Kivi,Təbii,FRUITS,61,1.1,0.5,15
+Ananas,Təbii,FRUITS,50,0.5,0.1,13
+Feyxoa,Təbii,FRUITS,55,0.7,0.4,13
+Heyva,Təbii,FRUITS,57,0.4,0.1,15
+Alça,Təbii,FRUITS,27,0.4,0.1,6.5
+Avokado,Təbii,FRUITS,160,2.0,15,9.0
+Manqo,Təbii,FRUITS,60,0.8,0.4,15
+Mandarin,Təbii,FRUITS,53,0.8,0.3,13
+# --- Giləmeyvələr ---
+Çiyələk,Təbii,BERRIES,32,0.7,0.3,8.0
+Albalı,Təbii,BERRIES,50,1.0,0.3,12
+Gilas,Təbii,BERRIES,63,1.1,0.2,16
+Moruq,Təbii,BERRIES,52,1.2,0.7,12
+Böyürtkən,Təbii,BERRIES,43,1.4,0.5,10
+Qaragilə,Təbii,BERRIES,57,0.7,0.3,14
+Firəngüzümü,Təbii,BERRIES,44,0.9,0.6,10
+Zoğal,Təbii,BERRIES,44,1.0,0.1,10
+Qarağat,Təbii,BERRIES,63,1.4,0.4,15
+# --- Tərəvəzlər ---
+Pomidor,Təbii,VEGETABLES,18,0.9,0.2,3.9
+Xiyar,Təbii,VEGETABLES,15,0.7,0.1,3.6
+Kartof,Təbii,VEGETABLES,77,2.0,0.1,17
+Soğan,Təbii,VEGETABLES,40,1.1,0.1,9.0
+Sarımsaq,Təbii,VEGETABLES,149,6.4,0.5,33
+Yerkökü,Təbii,VEGETABLES,41,0.9,0.2,10
+Bibər (şirin),Təbii,VEGETABLES,26,1.0,0.3,6.0
+Acı bibər,Təbii,VEGETABLES,40,1.9,0.4,9.0
+Badımcan,Təbii,VEGETABLES,25,1.0,0.2,6.0
+Kələm,Təbii,VEGETABLES,25,1.3,0.1,6.0
+Gül kələm,Təbii,VEGETABLES,25,1.9,0.3,5.0
+Brokoli,Təbii,VEGETABLES,34,2.8,0.4,7.0
+Çuğundur,Təbii,VEGETABLES,43,1.6,0.2,10
+Balqabaq,Təbii,VEGETABLES,26,1.0,0.1,7.0
+Kabaçkı,Təbii,VEGETABLES,17,1.2,0.3,3.0
+Turp,Təbii,VEGETABLES,16,0.7,0.1,3.4
+Şalğam,Təbii,VEGETABLES,28,0.9,0.1,6.0
+Qarğıdalı,Təbii,VEGETABLES,86,3.2,1.2,19
+Yaşıl noxud,Təbii,VEGETABLES,81,5.4,0.4,14
+Lobya (yaşıl),Təbii,VEGETABLES,31,1.8,0.1,7.0
+Göbələk,Təbii,VEGETABLES,22,3.1,0.3,3.3
+Zeytun,Təbii,VEGETABLES,115,0.8,11,6.0
+# --- Göyərti ---
+İspanaq,Təbii,GREENS,23,2.9,0.4,3.6
+Kahı,Təbii,GREENS,15,1.4,0.2,2.9
+Cəfəri,Təbii,GREENS,36,3.0,0.8,6.0
+Şüyüd,Təbii,GREENS,43,3.5,1.1,7.0
+Keşniş,Təbii,GREENS,23,2.1,0.5,3.7
+Reyhan,Təbii,GREENS,23,3.2,0.6,2.7
+Nanə,Təbii,GREENS,44,3.3,0.7,8.0
+Kərəviz,Təbii,GREENS,16,0.7,0.2,3.0
+Turşəng,Təbii,GREENS,22,2.0,0.7,3.0
+Yaşıl soğan,Təbii,GREENS,32,1.8,0.2,7.0
+# --- Qurumeyvə və qoz-fındıq ---
+Kişmiş,Təbii,DRIED,299,3.1,0.5,79
+Qax (qurudulmuş ərik),Təbii,DRIED,241,3.4,0.5,63
+Qara gavalı (qurudulmuş),Təbii,DRIED,240,2.2,0.4,64
+Xurma (qurudulmuş),Təbii,DRIED,282,2.5,0.4,75
+Quru əncir,Təbii,DRIED,249,3.3,0.9,64
+Qoz,Təbii,NUTS,654,15,65,14
+Fındıq,Təbii,NUTS,628,15,61,17
+Badam,Təbii,NUTS,579,21,50,22
+Püstə,Təbii,NUTS,560,20,45,28
+Yer fındığı,Təbii,NUTS,567,26,49,16
+Şabalıd,Təbii,NUTS,213,2.4,2.3,45
+Günəbaxan tumu,Təbii,NUTS,584,21,51,20
+# --- Paxlalı və dənli (bişmiş) ---
+Mərci (bişmiş),Təbii,LEGUMES,116,9.0,0.4,20
+Noxud (bişmiş),Təbii,LEGUMES,164,8.9,2.6,27
+Lobya (bişmiş),Təbii,LEGUMES,127,8.7,0.5,23
+Düyü (bişmiş),Təbii,GRAINS,130,2.7,0.3,28
+Qarabaşaq (bişmiş),Təbii,GRAINS,92,3.4,0.6,20
+Bulqur (bişmiş),Təbii,GRAINS,83,3.1,0.2,19
+Yulaf (bişmiş),Təbii,GRAINS,68,2.4,1.4,12
+Manqa (irmik) sıyığı,,GRAINS,80,2.5,1.5,14
+# --- Yağlar ---
+Zeytun yağı,,OILS,884,0.0,100,0.0
+Günəbaxan yağı,,OILS,899,0.0,100,0.0
+Küncüt yağı,,OILS,884,0.0,100,0.0
+Marqarin,,OILS,717,0.2,81,0.7
+Piy (quyruq),,OILS,900,0.0,100,0.0
+# --- Adi içkilər ---
+Su,,SOFTDRINK,0,0.0,0.0,0.0
+Mineral su,,SOFTDRINK,0,0.0,0.0,0.0
+Çay (şəkərsiz),,SOFTDRINK,1,0.0,0.0,0.3
+Qəhvə (şəkərsiz),,SOFTDRINK,2,0.1,0.0,0.0
+Portağal suyu,,SOFTDRINK,45,0.7,0.2,10
+Alma suyu,,SOFTDRINK,46,0.1,0.1,11
+Coca-Cola,,SOFTDRINK,42,0.0,0.0,10.6
+Fanta,,SOFTDRINK,46,0.0,0.0,11
+Sprite,,SOFTDRINK,39,0.0,0.0,9.5
+Limonad,,SOFTDRINK,40,0.0,0.0,10
+Enerji içkisi,,SOFTDRINK,45,0.0,0.0,11
+Kompot (albalı),Milli,SOFTDRINK,55,0.2,0.1,14
+# --- Spirtli içkilər (100 ml) ---
+Pivə (adi),,ALCOHOL,43,0.5,0.0,3.6
+Pivə (tünd),,ALCOHOL,53,0.6,0.0,5.5
+Qırmızı şərab (quru),,ALCOHOL,85,0.1,0.0,2.6
+Ağ şərab (quru),,ALCOHOL,82,0.1,0.0,2.6
+Şampan,,ALCOHOL,76,0.2,0.0,1.4
+Araq (vodka),,ALCOHOL,231,0.0,0.0,0.0
+Konyak,,ALCOHOL,250,0.0,0.0,0.1
+Viski,,ALCOHOL,250,0.0,0.0,0.0
+Likör,,ALCOHOL,345,0.0,0.0,32
+# --- Fast food ---
+Hamburger,,FASTFOOD,295,17,14,24
+Çizburger,,FASTFOOD,303,15,15,27
+Pizza (marqarita),,FASTFOOD,266,11,10,33
+Kartof fri,,FASTFOOD,312,3.4,15,41
+Şaurma (toyuq),,FASTFOOD,215,14,9.0,20
+Hot-dog,,FASTFOOD,290,10,18,22
+Naqet (toyuq),,FASTFOOD,296,15,19,16
