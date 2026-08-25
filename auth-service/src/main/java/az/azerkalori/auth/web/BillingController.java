@@ -50,6 +50,10 @@ public class BillingController {
     public Map<String, Object> checkout(@RequestHeader("X-User-Id") Long userId) throws StripeException {
         User user = users.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        if (secretKey == null || secretKey.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Ödəniş sistemi konfiqurasiya olunmayıb (STRIPE_SECRET_KEY yoxdur)");
+        }
         Stripe.apiKey = secretKey;
 
         SessionCreateParams params = SessionCreateParams.builder()

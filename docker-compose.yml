@@ -47,6 +47,18 @@ services:
       DB_USER: ${POSTGRES_USER}
       DB_PASS: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+      # Stripe (Pro ödəniş) — .env-dən; yoxdursa boş qalır
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_CURRENCY: ${STRIPE_CURRENCY:-azn}
+      STRIPE_PRO_AMOUNT_CENTS: ${STRIPE_PRO_AMOUNT_CENTS:-100}
+      APP_URL: ${APP_URL:-http://localhost}
+      # SMTP (dəvət məktubu)
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USER: ${MAIL_USER:-}
+      MAIL_PASS: ${MAIL_PASS:-}
+      MAIL_FROM: ${MAIL_FROM:-AzerKalori <no-reply@azerkalori.az>}
     depends_on:
       postgres: { condition: service_healthy }
       discovery-server: { condition: service_started }
