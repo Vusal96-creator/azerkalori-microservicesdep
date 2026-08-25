@@ -38,6 +38,11 @@ public class ChatAccessService {
             if ("ADMIN".equals(meRole) || "ADMIN".equals(peerRole)) {
                 return true;
             }
+            // Həkim həmişə yaza bilər — pasiyent Pro olmasa belə həkimin mesajı
+            // pasiyentin çatında görünsün.
+            if ("DOCTOR".equals(meRole)) {
+                return true;
+            }
 
             Map<String, Object> doctor;
             Long doctorId;
