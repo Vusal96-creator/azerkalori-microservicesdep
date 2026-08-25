@@ -180,6 +180,15 @@
         <h3>Bu gün yediklərim</h3>
         <div class="list" id="todayLogs"><div class="result-empty">Hələ qeyd yoxdur.</div></div>
       </div>
+
+      <div class="card" style="margin-top:20px">
+        <h3>AzərKalori Pro <span id="proBadge" class="chip hidden">Pro ✓</span></h3>
+        <p class="sub" id="proStatus">Pro ilə şəxsi həkiminlə birbaşa yazışa bilərsən.</p>
+        <div class="cta-row">
+          <button class="btn" id="buyProBtn">Pro al</button>
+          <button class="btn ghost hidden" id="docChatBtn">💬 Həkimlə danış</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -265,6 +274,19 @@
   </footer>
 
   <div id="toasts"></div>
+
+  <!-- DOCTOR CHAT (WebSocket · yalnız Pro pasiyent ↔ öz həkimi) -->
+  <div id="docChat" class="chat-panel hidden" style="right:96px">
+    <div class="chat-head">
+      <span id="docChatTitle">Həkim chat</span>
+      <button id="docChatClose" class="chat-close" aria-label="Bağla">×</button>
+    </div>
+    <div id="docChatBody" class="chat-body"></div>
+    <form id="docChatForm" class="chat-input">
+      <input id="docChatText" type="text" placeholder="Mesaj yaz..." autocomplete="off" />
+      <button type="submit" class="btn sm">Göndər</button>
+    </form>
+  </div>
 
   <!-- CHATBOT (RAG · n8n + Qdrant + Groq) -->
   <button id="chatFab" class="chat-fab" aria-label="Köməkçi">💬</button>

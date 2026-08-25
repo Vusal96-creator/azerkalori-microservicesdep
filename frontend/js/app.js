@@ -164,6 +164,8 @@ function connectWs() {
     if (state.role === "DOCTOR") {
       client.subscribe("/user/queue/alerts", (m) => pushAlert(JSON.parse(m.body)));
     }
+    // Həkim ↔ pasiyent chat (hər iki rol üçün)
+    client.subscribe("/user/queue/chat", (m) => onDocChat(JSON.parse(m.body)));
   };
   client.activate();
   state.stomp = client;
@@ -176,6 +178,7 @@ async function loadDashboard() {
   loadSummary();
   loadToday();
   loadPlan();
+  loadProStatus();
 }
 
 async function loadProducts() {
@@ -248,7 +251,8 @@ async function loadDoctor() {
     list.innerHTML = patients.map((p) =>
       '<div class="item"><div><div class="name">' + (p.fullName || p.email) + '</div>' +
       '<div class="meta">' + p.email + '</div></div>' +
-      '<div class="right"><button class="btn sm ghost" data-patient="' + p.id + '">Bugünü gör</button></div></div>').join("");
+      '<div class="right"><button class="btn sm ghost" data-patient="' + p.id + '">Bugünü gör</button> ' +
+      '<button class="btn sm" data-chat="' + p.id + '" data-name="' + (p.fullName || p.email) + '">Yaz</button></div></div>').join("");
     sel.innerHTML = patients.map((p) => '<option value="' + p.id + '">' + (p.fullName || p.email) + '</option>').join("");
   } catch (err) { toast("Xəta: " + err.message, "bad"); }
 }
@@ -329,5 +333,94 @@ $("#assignBtn").addEventListener("click", async () => {
 
 loadSession();
 refreshChrome();
+// ---------- Pro abunə ----------
+async function loadProStatus() {
+  if (state.role !== "USER") return;
+  const badge = $("#proBadge"), docBtn = $("#docChatBtn"), buyBtn = $("#buyProBtn"), status = $("#proStatus");
+  try {
+    const st = await api("/api/billing/status");
+    state.pro = !!st.pro;
+    if (st.pro) {
+      badge.classList.remove("hidden");
+      buyBtn.classList.add("hidden");
+      status.textContent = "Pro aktivdir" + (st.proUntil ? " — " + new Date(st.proUntil).toLocaleDateString() + " tarixinədək" : "");
+      try {
+        const me = await api("/api/auth/me");
+        if (me.doctorId) { state.doctorId = me.doctorId; docBtn.classList.remove("hidden"); }
+      } catch (e) {}
+    } else {
+      badge.classList.add("hidden");
+      buyBtn.classList.remove("hidden");
+      docBtn.classList.add("hidden");
+      status.textContent = "Pro ilə şəxsi həkiminlə birbaşa yazışa bilərsən.";
+    }
+  } catch (e) {}
+}
+
+$("#buyProBtn") && $("#buyProBtn").addEventListener("click", async () => {
+  try {
+    const r = await api("/api/billing/checkout", { method: "POST" });
+    if (r.url) window.location.href = r.url;
+    else toast("Ödəniş başladıla bilmədi", "bad");
+  } catch (e) { toast("Ödəniş xətası (Stripe konfiqi?): " + e.message, "bad"); }
+});
+
+// ---------- Həkim ↔ pasiyent chat ----------
+function openDocChat(peerId, title) {
+  state.chatPeer = peerId;
+  $("#docChatTitle").textContent = title || "Həkim chat";
+  $("#docChat").classList.remove("hidden");
+  loadChatHistory(peerId);
+}
+function closeDocChat() { $("#docChat").classList.add("hidden"); state.chatPeer = null; }
+
+async function loadChatHistory(peerId) {
+  const body = $("#docChatBody");
+  body.innerHTML = "";
+  try {
+    const msgs = await api("/api/chat/" + peerId);
+    if (!msgs.length) addChatBubble("Söhbətə başla 👋", false);
+    msgs.forEach((m) => addChatBubble(m.content, String(m.senderId) === String(state.userId)));
+  } catch (e) {
+    addChatBubble("Yazışma açıla bilmədi (Pro + təyin olunmuş həkim tələb olunur).", false, true);
+  }
+}
+function addChatBubble(text, mine, isError) {
+  const el = document.createElement("div");
+  el.className = "chat-msg " + (isError ? "error" : mine ? "user" : "bot");
+  el.textContent = text;
+  const body = $("#docChatBody");
+  body.appendChild(el);
+  body.scrollTop = body.scrollHeight;
+}
+function onDocChat(msg) {
+  if (msg.error) { addChatBubble(msg.error, false, true); return; }
+  const peer = state.chatPeer;
+  if (peer && (String(msg.senderId) === String(peer) || String(msg.recipientId) === String(peer))) {
+    addChatBubble(msg.content, String(msg.senderId) === String(state.userId));
+  }
+}
+
+$("#docChatClose") && $("#docChatClose").addEventListener("click", closeDocChat);
+$("#docChatBtn") && $("#docChatBtn").addEventListener("click", () => {
+  if (state.doctorId) openDocChat(state.doctorId, "Həkimim");
+  else toast("Sənə həkim təyin olunmayıb", "warn");
+});
+$("#docChatForm") && $("#docChatForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const input = $("#docChatText");
+  const text = input.value.trim();
+  if (!text || !state.chatPeer) return;
+  if (!state.stomp || !state.stomp.connected) { toast("Bağlantı yoxdur", "warn"); return; }
+  state.stomp.publish({ destination: "/app/chat.send", body: JSON.stringify({ recipientId: state.chatPeer, content: text }) });
+  input.value = "";
+});
+// Həkim: pasiyent siyahısındakı "Yaz" düyməsi
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-chat]");
+  if (!b) return;
+  openDocChat(+b.dataset.chat, b.dataset.name || "Pasiyent");
+});
+
 if (state.token) connectWs();
 go("home");
