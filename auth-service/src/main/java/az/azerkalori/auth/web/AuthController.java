@@ -2,6 +2,7 @@ package az.azerkalori.auth.web;
 
 import az.azerkalori.auth.entity.Role;
 import az.azerkalori.auth.entity.User;
+import az.azerkalori.auth.mail.MailService;
 import az.azerkalori.auth.repo.UserRepository;
 import az.azerkalori.auth.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class AuthController {
     private final UserRepository users;
     private final PasswordEncoder encoder;
     private final JwtService jwt;
+    private final MailService mail;
 
     @GetMapping("/ping")
     public Map<String, String> ping() {
@@ -41,6 +43,8 @@ public class AuthController {
                 .sex(req.sex()).activityLevel(req.activityLevel())
                 .build();
         users.save(user);
+        // Dəvət/xoşgəldin məktubu (arxa fonda; xəta qeydiyyatı sındırmır)
+        mail.sendWelcome(user.getEmail(), user.getFullName());
         return Map.of("id", user.getId(), "token", jwt.issue(user), "role", user.getRole());
     }
 
