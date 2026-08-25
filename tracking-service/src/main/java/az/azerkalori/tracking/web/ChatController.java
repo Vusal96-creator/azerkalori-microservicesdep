@@ -2,11 +2,14 @@ package az.azerkalori.tracking.web;
 
 import az.azerkalori.tracking.entity.ChatMessage;
 import az.azerkalori.tracking.repo.ChatMessageRepository;
+import az.azerkalori.tracking.service.ChatAccessService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 import java.time.Instant;
@@ -26,11 +29,19 @@ public class ChatController {
 
     private final ChatMessageRepository messages;
     private final SimpMessagingTemplate ws;
+    private final ChatAccessService access;
 
     // ---- WebSocket: mesaj göndər ----
     @MessageMapping("/chat.send")
     public void send(@Payload ChatIn in, Principal principal) {
         Long senderId = Long.valueOf(principal.getName());
+
+        // Yalnız Pro pasiyent ↔ öz həkimi yaza bilər.
+        if (!access.canChat(senderId, in.recipientId())) {
+            ws.convertAndSendToUser(String.valueOf(senderId), "/queue/chat",
+                    Map.of("error", "Bu istifadəçi ilə yazışma icazəniz yoxdur (Pro + təyin olunmuş həkim tələb olunur)"));
+            return;
+        }
 
         ChatMessage saved = messages.save(ChatMessage.builder()
                 .senderId(senderId)
@@ -55,6 +66,10 @@ public class ChatController {
     @GetMapping("/{peerId}")
     public List<ChatMessage> history(@RequestHeader("X-User-Id") Long userId,
                                      @PathVariable Long peerId) {
+        if (!access.canChat(userId, peerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Bu istifadəçi ilə yazışma icazəniz yoxdur");
+        }
         return messages.conversation(userId, peerId);
     }
 
