@@ -32,8 +32,8 @@ app:
 stripe:
   secret-key: ${STRIPE_SECRET_KEY:}
   webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
-  currency: ${STRIPE_CURRENCY:usd}
-  pro-amount-cents: ${STRIPE_PRO_AMOUNT_CENTS:999}
+  currency: ${STRIPE_CURRENCY:azn}
+  pro-amount-cents: ${STRIPE_PRO_AMOUNT_CENTS:100}   # 100 qəpik = 1 ₼ (simvolik)
   pro-days: ${STRIPE_PRO_DAYS:30}
 app:
   frontend-url: ${APP_URL:http://localhost}
