@@ -568,11 +568,6 @@ $("#iwBtn") && $("#iwBtn").addEventListener("click", () => {
     '<div class="right"><b style="color:var(--green)">' + avg.toFixed(1) + ' kq</b></div></div>';
 });
 
-// qadında kalça sahəsini göstər/gizlət
-$("#bfSex") && $("#bfSex").addEventListener("click", () => {
-  const hip = $("#hipField");
-  if (hip) hip.style.display = state.bfSex === "FEMALE" ? "" : "none";
-});
 $("#bfBtn") && $("#bfBtn").addEventListener("click", () => {
   const male = state.bfSex === "MALE";
   const h = +$("#bf_h").value, neck = +$("#bf_neck").value, waist = +$("#bf_waist").value;
@@ -590,7 +585,7 @@ $("#bfBtn") && $("#bfBtn").addEventListener("click", () => {
   $("#bfResult").innerHTML =
     '<div class="kcal-big" style="color:' + color + '">' + bf.toFixed(1) + ' <small>% bədən yağı</small></div>' +
     '<div class="stat-row"><span>Kateqoriya</span><b style="color:' + color + '">' + cat + '</b></div>' +
-    '<p class="sub">U.S. Navy metodu — ölçülərə əsaslanır, təxminidir.</p>';
+    '<p class="sub">U.S. Navy metodu — ölçülərə əsaslanır. Basen (kalça) yalnız qadın hesablamasında istifadə olunur.</p>';
 });
 $("#bmiBtn") && $("#bmiBtn").addEventListener("click", () => {
   const h = +$("#bmi_h").value, w = +$("#bmi_w").value;
