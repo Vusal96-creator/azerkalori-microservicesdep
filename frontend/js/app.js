@@ -293,6 +293,9 @@ async function loadDoctor() {
     const patients = await api("/api/auth/doctor/patients");
     const list = $("#patients");
     const sel = $("#planPatient");
+    // id -> ad/email xəritəsi (xəbərdarlıqda ad göstərmək üçün)
+    state.patientsById = {};
+    patients.forEach((p) => { state.patientsById[p.id] = p.fullName || p.email; });
     if (!patients.length) { list.innerHTML = '<div class="result-empty">Sənə təyin olunmuş pasiyent yoxdur.</div>'; sel.innerHTML = ""; return; }
     list.innerHTML = patients.map((p) =>
       '<div class="item"><div><div class="name">' + (p.fullName || p.email) + '</div>' +
@@ -313,15 +316,16 @@ document.addEventListener("click", async (e) => {
 });
 
 function pushAlert(a) {
+  const who = (state.patientsById && state.patientsById[a.patientId]) || ("Pasiyent #" + a.patientId);
   const box = $("#alerts");
   if (box.querySelector(".result-empty")) box.innerHTML = "";
   const el = document.createElement("div");
   el.className = "item";
-  el.innerHTML = '<div><div class="name">⚠ Pasiyent #' + a.patientId + ' limiti keçdi</div>' +
+  el.innerHTML = '<div><div class="name">⚠ ' + who + ' limiti keçdi</div>' +
     '<div class="meta">' + Math.round(a.calories) + ' / ' + Math.round(a.targetCalories) + ' kkal</div></div>' +
     '<div class="right"><span class="pill LIMIT">' + a.percent + '%</span></div>';
   box.prepend(el);
-  toast("Xəbərdarlıq: pasiyent #" + a.patientId + " limiti keçdi", "bad");
+  toast("Xəbərdarlıq: " + who + " limiti keçdi", "bad");
 }
 
 $("#planBtn").addEventListener("click", async () => {
