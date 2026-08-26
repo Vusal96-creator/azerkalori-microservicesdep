@@ -43,6 +43,7 @@ public class BillingController {
     @Value("${stripe.currency:usd}")     private String currency;
     @Value("${stripe.pro-amount-cents:999}") private long amountCents;
     @Value("${stripe.pro-days:30}")      private long proDays;
+    @Value("${stripe.allow-simulate:true}") private boolean allowSimulate;
     @Value("${app.frontend-url:http://localhost}") private String frontendUrl;
 
     /** Ödəniş səhifəsi üçün Stripe Checkout sessiyası yaradır və URL qaytarır. */
@@ -108,6 +109,27 @@ public class BillingController {
             }
         }
         return ResponseEntity.ok("ok");
+    }
+
+    /**
+     * Test/demo: ödəniş etmədən Pro aktivləşdirir. stripe.allow-simulate=false ilə
+     * production-da söndürülür.
+     */
+    @PostMapping("/simulate")
+    public Map<String, Object> simulate(@RequestHeader("X-User-Id") Long userId) {
+        if (!allowSimulate) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Simulyasiya söndürülüb");
+        }
+        User user = users.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        user.setPro(true);
+        user.setProUntil(Instant.now().plus(proDays, ChronoUnit.DAYS));
+        users.save(user);
+        Map<String, Object> res = new HashMap<>();
+        res.put("pro", true);
+        res.put("proUntil", user.getProUntil());
+        res.put("simulated", true);
+        return res;
     }
 
     /** İstifadəçinin Pro statusu. */

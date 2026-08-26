@@ -383,12 +383,14 @@ refreshChrome();
 async function loadProStatus() {
   if (state.role !== "USER") return;
   const badge = $("#proBadge"), docBtn = $("#docChatBtn"), buyBtn = $("#buyProBtn"), status = $("#proStatus");
+  const simBtn = $("#simProBtn");
   try {
     const st = await api("/api/billing/status");
     state.pro = !!st.pro;
     if (st.pro) {
       badge.classList.remove("hidden");
       buyBtn.classList.add("hidden");
+      if (simBtn) simBtn.classList.add("hidden");
       status.textContent = "Pro aktivdir" + (st.proUntil ? " — " + new Date(st.proUntil).toLocaleDateString() + " tarixinədək" : "");
       try {
         const me = await api("/api/auth/me");
@@ -397,6 +399,7 @@ async function loadProStatus() {
     } else {
       badge.classList.add("hidden");
       buyBtn.classList.remove("hidden");
+      if (simBtn) simBtn.classList.remove("hidden");
       docBtn.classList.add("hidden");
       status.textContent = "Pro ilə şəxsi həkiminlə birbaşa yazışa bilərsən.";
     }
@@ -409,6 +412,14 @@ $("#buyProBtn") && $("#buyProBtn").addEventListener("click", async () => {
     if (r.url) window.location.href = r.url;
     else toast("Ödəniş başladıla bilmədi", "bad");
   } catch (e) { toast("Ödəniş xətası (Stripe konfiqi?): " + e.message, "bad"); }
+});
+
+$("#simProBtn") && $("#simProBtn").addEventListener("click", async () => {
+  try {
+    await api("/api/billing/simulate", { method: "POST" });
+    toast("Pro aktivləşdi (test) 🎉", "good");
+    loadProStatus();
+  } catch (e) { toast("Alınmadı: " + e.message, "bad"); }
 });
 
 // ---------- Həkim ↔ pasiyent chat ----------
