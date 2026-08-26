@@ -234,15 +234,12 @@ async function ensureTarget(s) {
 
 function applyLive(s) {
   const target = s.targetCalories || state.dailyTarget || 0;
-  $("#calNow").textContent = Math.round(s.calories || 0);
+  const cals = s.calories || 0;
+  $("#calNow").textContent = Math.round(cals);
   $("#calTarget").textContent = Math.round(target);
-  // Server hədəfi 0-dırsa, faizi/səviyyəni müştəridə hesabla (fallback hədəflə).
-  let pct = s.percent || 0;
-  let level = s.level;
-  if ((!s.targetCalories || s.targetCalories <= 0) && target > 0) {
-    pct = Math.round(100 * (s.calories || 0) / target);
-    level = pct >= 100 ? "LIMIT" : pct >= 80 ? "WARN" : "OK";
-  }
+  // Faizi HƏMİŞƏ göstərilən rəqəmlərdən hesabla — server 0 göndərsə belə sabit qalsın.
+  const pct = target > 0 ? Math.round(100 * cals / target) : 0;
+  const level = pct >= 100 ? "LIMIT" : pct >= 80 ? "WARN" : "OK";
   const ring = $("#ring");
   ring.style.setProperty("--p", Math.min(pct, 100));
   const color = level === "LIMIT" ? "var(--red)" : level === "WARN" ? "var(--amber)" : "var(--green)";
@@ -489,6 +486,19 @@ $("#foodSearchBtn") && $("#foodSearchBtn").addEventListener("click", async () =>
     sel.value = found[0].id;
     toast(found.length + " nəticə tapıldı və siyahıya əlavə olundu", "good");
   } catch (e) { toast("Axtarış xətası: " + e.message, "bad"); }
+});
+
+// ---------- Dark / Light görünüş ----------
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const b = $("#themeBtn");
+  if (b) b.textContent = theme === "dark" ? "☀️" : "🌙";
+  localStorage.setItem("azk_theme", theme);
+}
+applyTheme(localStorage.getItem("azk_theme") || "light");
+$("#themeBtn") && $("#themeBtn").addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  applyTheme(cur);
 });
 
 if (state.token) connectWs();

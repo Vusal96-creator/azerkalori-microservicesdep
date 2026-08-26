@@ -203,6 +203,27 @@ th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spa
 .tg-fab { position: fixed; left: 20px; bottom: 20px; background: #229ED9; color: #fff; padding: 10px 15px; border-radius: 24px; text-decoration: none; font-size: 14px; font-weight: 600; box-shadow: 0 4px 14px rgba(0,0,0,.18); z-index: 50; }
 .tg-fab:hover { background: #1b8ac0; }
 
+/* ---------- Dark mode ---------- */
+:root[data-theme="dark"] {
+  --ink: #e5e9f0;
+  --muted: #93a1b5;
+  --line: #2a3441;
+  --bg: #0f1620;
+  --card: #1a2330;
+  --green-050: #16311f;
+  --shadow: 0 10px 30px rgba(0,0,0,.45);
+}
+:root[data-theme="dark"] body { background: var(--bg); }
+:root[data-theme="dark"] .nav { background: rgba(26,35,48,.9); }
+:root[data-theme="dark"] .btn.ghost { background: var(--card); color: var(--ink); }
+:root[data-theme="dark"] .btn.ghost:hover { background: #222d3c; }
+:root[data-theme="dark"] .hero { background: radial-gradient(1200px 400px at 80% -10%, #14321f 0, transparent 60%), linear-gradient(180deg, #16202c, var(--bg)); }
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea { background: var(--card); color: var(--ink); border-color: var(--line); }
+:root[data-theme="dark"] .chat-msg.bot { background: #16311f; color: var(--ink); }
+.theme-btn { background: none; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; font-size: 15px; padding: 6px 10px; }
+
 .chat-input { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); }
 .chat-input input { flex: 1; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; font-size: 14px; outline: none; }
 .chat-input input:focus { border-color: var(--green); }
