@@ -156,10 +156,17 @@ $("#registerBtn").addEventListener("click", async () => {
   const body = {
     fullName: $("#r_name").value, email: $("#r_email").value, password: $("#r_pass").value,
     age: +$("#r_age").value, weightKg: +$("#r_weight").value, heightCm: +$("#r_height").value,
-    sex: $("#r_sex").value, activityLevel: $("#r_activity").value
+    sex: $("#r_sex").value, activityLevel: $("#r_activity").value, role: $("#r_role").value
   };
   try {
     const r = await api("/api/auth/register", { method: "POST", body: JSON.stringify(body) });
+    if (r.approved === false || !r.token) {
+      toast("Qeydiyyat qəbul edildi — həkim hesabı admin təsdiqini gözləyir.", "good");
+      // login tabına keç
+      const lt = document.querySelector('#authTabs [data-tab="login"]');
+      if (lt) lt.click();
+      return;
+    }
     r.name = body.fullName;
     afterAuth(r);
   } catch (err) { toast("Qeydiyyat alınmadı: " + err.message, "bad"); }
@@ -450,7 +457,31 @@ async function loadAdmin() {
     $("#as_patient").innerHTML = patients.map((u) => '<option value="' + u.id + '">' + (u.fullName || u.email) + '</option>').join("");
     $("#as_doctor").innerHTML = doctors.map((u) => '<option value="' + u.id + '">' + (u.fullName || u.email) + '</option>').join("");
   } catch (e) {}
+  loadPending();
 }
+
+async function loadPending() {
+  try {
+    const list = await api("/api/auth/admin/pending");
+    const box = $("#pendingList");
+    $("#pendingCount").textContent = list.length ? list.length : "";
+    if (!list.length) { box.innerHTML = '<div class="result-empty">Gözləyən yoxdur.</div>'; return; }
+    box.innerHTML = list.map((u) =>
+      '<div class="item"><div><div class="name">' + (u.fullName || u.email) + ' <span class="chip tag">' + u.role + '</span></div>' +
+      '<div class="meta">' + u.email + '</div></div>' +
+      '<div class="right"><button class="btn sm" data-approve="' + u.id + '">Təsdiqlə</button></div></div>').join("");
+  } catch (e) {}
+}
+
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-approve]");
+  if (!b) return;
+  try {
+    await api("/api/auth/admin/approve/" + b.dataset.approve, { method: "PUT" });
+    toast("Təsdiqləndi ✓", "good");
+    loadPending();
+  } catch (err) { toast("Xəta: " + err.message, "bad"); }
+});
 
 $("#prodBtn").addEventListener("click", async () => {
   const body = {

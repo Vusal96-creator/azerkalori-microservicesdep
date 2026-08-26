@@ -152,6 +152,12 @@
               </select>
             </label>
           </div>
+          <label class="field"><span class="lab">Hesab növü</span>
+            <select id="r_role">
+              <option value="USER">İstifadəçi (pasiyent)</option>
+              <option value="DOCTOR">Həkim (admin təsdiqi lazımdır)</option>
+            </select>
+          </label>
           <button class="btn block" id="registerBtn">Hesab yarat</button>
         </div>
       </div>
@@ -267,6 +273,13 @@
     <div class="container">
       <h2 class="section-title">Admin paneli</h2>
       <p class="section-sub">Kataloq, həkimlər və təyinatlar.</p>
+
+      <div class="card" style="margin-bottom:20px">
+        <h3>Təsdiq gözləyən hesablar <span id="pendingCount" class="chip"></span></h3>
+        <p class="sub">Yeni qeydiyyatdan keçən həkimləri təsdiqlə.</p>
+        <div class="list" id="pendingList"><div class="result-empty">Gözləyən yoxdur.</div></div>
+      </div>
+
       <div class="grid cols-2">
         <div class="card">
           <h3>Məhsul əlavə et</h3>

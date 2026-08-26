@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,18 +35,26 @@ public class AuthController {
         users.findByEmail(req.email()).ifPresent(u -> {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
         });
+        // İstifadəçi rol seçir. Həkim admin təsdiqi gözləyir, USER dərhal təsdiqlidir.
+        Role chosen = "DOCTOR".equalsIgnoreCase(req.role()) ? Role.DOCTOR : Role.USER;
+        boolean approved = chosen == Role.USER;
         User user = User.builder()
                 .email(req.email())
                 .password(encoder.encode(req.password()))
                 .fullName(req.fullName())
-                .role(Role.USER)
+                .role(chosen)
+                .approved(approved)
                 .age(req.age()).weightKg(req.weightKg()).heightCm(req.heightCm())
                 .sex(req.sex()).activityLevel(req.activityLevel())
                 .build();
         users.save(user);
-        // Dəvət/xoşgəldin məktubu (arxa fonda; xəta qeydiyyatı sındırmır)
         mail.sendWelcome(user.getEmail(), user.getFullName());
-        return Map.of("id", user.getId(), "token", jwt.issue(user), "role", user.getRole());
+        Map<String, Object> res = new HashMap<>();
+        res.put("id", user.getId());
+        res.put("role", user.getRole());
+        res.put("approved", approved);
+        if (approved) res.put("token", jwt.issue(user)); // pending həkimə token verilmir
+        return res;
     }
 
     @PostMapping("/login")
@@ -53,7 +62,27 @@ public class AuthController {
         User user = users.findByEmail(req.email())
                 .filter(u -> encoder.matches(req.password(), u.getPassword()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bad credentials"));
+        if (user.getRole() == Role.DOCTOR && !user.isApproved()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Hesabınız admin təsdiqini gözləyir");
+        }
         return Map.of("id", user.getId(), "token", jwt.issue(user), "role", user.getRole());
+    }
+
+    @GetMapping("/admin/pending")
+    public List<User> pending(@RequestHeader("X-User-Role") String role) {
+        requireRole(role, Role.ADMIN);
+        return users.findByApprovedFalse();
+    }
+
+    @PutMapping("/admin/approve/{id}")
+    public Map<String, Object> approve(@RequestHeader("X-User-Role") String role,
+                                       @PathVariable Long id) {
+        requireRole(role, Role.ADMIN);
+        User u = users.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        u.setApproved(true);
+        users.save(u);
+        return Map.of("id", id, "approved", true);
     }
 
     @GetMapping("/me")
@@ -71,6 +100,7 @@ public class AuthController {
                 .password(encoder.encode(req.password()))
                 .fullName(req.fullName())
                 .role(Role.DOCTOR)
+                .approved(true) // admin-yaratdığı həkim dərhal təsdiqlidir
                 .build();
         users.save(doc);
         return Map.of("id", doc.getId(), "role", doc.getRole());
@@ -125,7 +155,7 @@ public class AuthController {
 
     public record RegisterRequest(String email, String password, String fullName,
                                   Integer age, Double weightKg, Double heightCm,
-                                  String sex, String activityLevel) {}
+                                  String sex, String activityLevel, String role) {}
 
     public record LoginRequest(String email, String password) {}
 }

@@ -34,6 +34,10 @@ public class User {
     private boolean pro;
     private Instant proUntil;
 
+    // Həkim qeydiyyatı admin təsdiqindən keçməlidir. USER avtomatik təsdiqlidir.
+    @Column(nullable = false)
+    private boolean approved;
+
     private Integer age;
     private Double weightKg;
     private Double heightCm;
