@@ -1,10 +1,18 @@
 // AzərKalori RAG chatbot — frontend widget.
 // n8n "When chat message received" (Chat Trigger) node-una POST edir.
 //
-// QURAŞDIRMA: workflow-u n8n-də aktiv edəndən sonra Chat Trigger node-unun
-// "Production URL"-ni götür və aşağıdakı N8N_CHAT_WEBHOOK-a yaz.
-// Adətən: http://localhost:5678/webhook/<webhookId>/chat
-const N8N_CHAT_WEBHOOK = "http://localhost:5678/webhook/azerkalori-chat-0001/chat";
+// Webhook ünvanı mühitə görə seçilir:
+//  - Lokal dev (localhost)  -> sənin lokal n8n-in (tələbələr üçün, toxunulmur)
+//  - Deploy (domen)         -> droplet-dəki n8n subdomeni (n8n.<domen>)
+const N8N_WEBHOOK_ID = "azerkalori-chat-0001";
+const N8N_CHAT_WEBHOOK = (function () {
+  const h = location.hostname;
+  if (h === "localhost" || h === "127.0.0.1") {
+    return "http://localhost:5678/webhook/" + N8N_WEBHOOK_ID + "/chat";
+  }
+  const root = h.replace(/^www\./, "");
+  return location.protocol + "//n8n." + root + "/webhook/" + N8N_WEBHOOK_ID + "/chat";
+})();
 
 (function () {
   const fab = document.getElementById("chatFab");

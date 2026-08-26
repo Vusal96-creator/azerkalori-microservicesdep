@@ -1,76 +1,34 @@
-# AzərKalori RAG AI stack — əsas azerkalori sistemindən AYRI işləyir.
-# Qaldırmaq:   docker compose -f docker-compose.ai.yml --profile cpu up -d
-# Dayandırmaq: docker compose -f docker-compose.ai.yml --profile cpu down
+# Droplet-də RAG chatbot üçün AI stack — n8n + Qdrant.
+# Ollama YOXDUR (OpenAI işlədilir, yaddaş yüngül qalır).
+# Bu, əsas app compose-undan AYRIDIR — lokal n8n-inə heç bir təsiri yoxdur.
 #
-# Qeyd: bu stack 5678/6333/11434 portlarını istifadə edir. Əgər sənin
-# self-hosted-ai-starter-kit onsuz da işləyirsə, əvvəlcə onu dayandır ki,
-# port konflikti olmasın (və ya bu faylı işlətməyib mövcud olanı istifadə et).
-
-volumes:
-  azk_n8n_storage:
-  azk_qdrant_storage:
-  azk_ollama_storage:
-
-networks:
-  azk-ai:
-
+# İşə sal:   docker compose -f docker-compose.ai.yml up -d
+# Dayandır:  docker compose -f docker-compose.ai.yml down
 services:
   qdrant:
     image: qdrant/qdrant
-    container_name: azk-qdrant
-    networks: ['azk-ai']
+    container_name: azerkalori-qdrant
     restart: unless-stopped
-    ports:
-      - "6333:6333"
     volumes:
-      - azk_qdrant_storage:/qdrant/storage
-
-  ollama:
-    image: ollama/ollama:latest
-    container_name: azk-ollama
-    networks: ['azk-ai']
-    restart: unless-stopped
-    ports:
-      - "11434:11434"
-    volumes:
-      - azk_ollama_storage:/root/.ollama
-
-  # Bir dəfəlik: embedding modelini (nomic-embed-text) yükləyir, sonra çıxır.
-  ollama-pull:
-    image: ollama/ollama:latest
-    container_name: azk-ollama-pull
-    networks: ['azk-ai']
-    volumes:
-      - azk_ollama_storage:/root/.ollama
-    environment:
-      - OLLAMA_HOST=ollama:11434
-    entrypoint: /bin/sh
-    command:
-      - "-c"
-      - "sleep 3; ollama pull nomic-embed-text"
-    depends_on:
-      - ollama
+      - qdrant_data:/qdrant/storage
 
   n8n:
     image: n8nio/n8n:latest
-    container_name: azk-n8n
-    networks: ['azk-ai']
+    container_name: azerkalori-n8n
     restart: unless-stopped
     ports:
-      - "5678:5678"
+      - "127.0.0.1:5678:5678"      # yalnız lokal — Caddy subdomen ilə açır
     environment:
-      - N8N_SECURE_COOKIE=false
-      - N8N_DIAGNOSTICS_ENABLED=false
-      - N8N_PERSONALIZATION_ENABLED=false
-      # Frontend (localhost) chatbot-un webhook-a çıxışı üçün CORS icazəsi:
-      - N8N_CORS_ALLOW_ORIGIN=*
-      # Disk-dən fayl oxumağa icazə (bilik bazası /data/shared):
-      - N8N_RESTRICT_FILE_ACCESS_TO=
-      - OLLAMA_HOST=ollama:11434
+      - N8N_HOST=n8n.kalorikolik.xyz
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://n8n.kalorikolik.xyz/
+      - N8N_PORT=5678
+      - N8N_SECURE_COOKIE=true
+      - N8N_RUNNERS_ENABLED=true
     volumes:
-      - azk_n8n_storage:/home/node/.n8n
-      - ./shared:/data/shared
-      - ./n8n:/demo-data:ro
-    depends_on:
-      - qdrant
-      - ollama
+      - n8n_data:/home/node/.n8n
+      - ./shared:/data/shared        # bilik faylı burada (azerkalori-knowledge.txt)
+
+volumes:
+  qdrant_data:
+  n8n_data:
