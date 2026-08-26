@@ -225,8 +225,8 @@ async function loadChart(days) {
 }
 function renderBarChart(data) {
   const n = data.length, many = n > 14;
-  const bw = many ? 12 : 26, gap = many ? 4 : 12, padL = 4, padT = 8, padB = 22;
-  const h = 190, chartH = h - padT - padB;
+  const bw = many ? 12 : 26, gap = many ? 4 : 12, padL = 4, padT = 20, padB = 22;
+  const h = 200, chartH = h - padT - padB;
   const w = padL * 2 + n * bw + (n - 1) * gap;
   const maxCal = Math.max(100, ...data.map((d) => d.calories), ...data.map((d) => d.targetCalories || 0));
   let svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + Math.max(w, 300) + '" height="' + h + '">';
@@ -238,6 +238,11 @@ function renderBarChart(data) {
     const col = t > 0 && pct >= 100 ? "var(--red)" : t > 0 && pct >= 80 ? "var(--amber)" : "var(--green)";
     svg += '<rect x="' + x + '" y="' + y + '" width="' + bw + '" height="' + bh + '" rx="3" fill="' + col + '"><title>' +
       d.day + ": " + Math.round(d.calories) + " kkal</title></rect>";
+    // sütunun üstündə kalori dəyəri
+    if (d.calories > 0) {
+      svg += '<text x="' + (x + bw / 2) + '" y="' + (y - 5) + '" font-size="' + (many ? 8 : 11) + '" font-weight="700" fill="var(--ink)" text-anchor="middle">' +
+        Math.round(d.calories) + "</text>";
+    }
     if (t > 0) {
       const ty = padT + chartH - Math.min(chartH, (t / maxCal) * chartH);
       svg += '<line x1="' + x + '" y1="' + ty + '" x2="' + (x + bw) + '" y2="' + ty + '" stroke="var(--muted)" stroke-width="1" stroke-dasharray="2 2"/>';
