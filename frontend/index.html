@@ -199,6 +199,24 @@
         <div class="list" id="todayLogs"><div class="result-empty">Hələ qeyd yoxdur.</div></div>
       </div>
 
+      <div class="grid cols-2" style="margin-top:20px">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+            <h3 id="chartTitle">Həftəlik kalori</h3>
+            <div class="segmented" id="periodSeg" style="width:auto">
+              <button data-days="7" class="on">Həftə</button>
+              <button data-days="30">Ay</button>
+            </div>
+          </div>
+          <p class="sub" id="chartRange"></p>
+          <div id="calChart" style="overflow-x:auto;margin-top:6px"></div>
+        </div>
+        <div class="card">
+          <h3>Bu günün makro bölgüsü</h3>
+          <div id="macroDonut" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:8px"></div>
+        </div>
+      </div>
+
       <div class="card" style="margin-top:20px">
         <h3>Kalori Kolik Pro <span id="proBadge" class="chip hidden">Pro ✓</span></h3>
         <p class="sub" id="proStatus">Pro ilə şəxsi həkiminlə birbaşa yazışa bilərsən.</p>

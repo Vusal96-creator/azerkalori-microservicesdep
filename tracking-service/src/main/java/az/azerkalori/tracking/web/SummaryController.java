@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/summary")
@@ -20,6 +22,30 @@ public class SummaryController {
 
     private final DailySummaryRepository summaries;
     private final AlertRepository alerts;
+
+    // Son N günün gündəlik kaloriləri (qrafik üçün). Boş günlər 0 ilə doldurulur.
+    @GetMapping("/history")
+    public List<Map<String, Object>> history(@RequestHeader("X-User-Id") Long userId,
+                                             @RequestParam(defaultValue = "7") int days) {
+        int n = Math.max(1, Math.min(days, 90));
+        LocalDate to = LocalDate.now();
+        LocalDate from = to.minusDays(n - 1);
+        var byDay = summaries.findByUserIdAndDayBetweenOrderByDayAsc(userId, from, to).stream()
+                .collect(Collectors.toMap(DailySummary::getDay, s -> s, (a, b) -> a));
+        List<Map<String, Object>> out = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            LocalDate d = from.plusDays(i);
+            DailySummary s = byDay.get(d);
+            out.add(Map.of(
+                    "day", d.toString(),
+                    "calories", s == null ? 0d : s.getCalories(),
+                    "targetCalories", s == null || s.getTargetCalories() == null ? 0d : s.getTargetCalories(),
+                    "proteinG", s == null ? 0d : s.getProteinG(),
+                    "fatG", s == null ? 0d : s.getFatG(),
+                    "carbsG", s == null ? 0d : s.getCarbsG()));
+        }
+        return out;
+    }
 
     // Həkimin son xəbərdarlıqları (DB-dən — panelə girəndə göstərmək üçün).
     @GetMapping("/alerts")

@@ -206,7 +206,75 @@ async function loadDashboard() {
   loadToday();
   loadPlan();
   loadProStatus();
+  loadChart(state.chartDays || 7);
 }
+
+// ---------- Həftəlik/aylıq kalori qrafiki (SVG, kitabxanasız) ----------
+state.chartDays = 7;
+async function loadChart(days) {
+  state.chartDays = days;
+  try {
+    const data = await api("/api/summary/history?days=" + days);
+    renderBarChart(data);
+    if (data.length) {
+      const fmt = (s) => { const p = s.split("-"); return p[2] + "." + p[1]; };
+      $("#chartRange").textContent = fmt(data[0].day) + " – " + fmt(data[data.length - 1].day);
+      $("#chartTitle").textContent = days === 7 ? "Həftəlik kalori" : "Aylıq kalori";
+    }
+  } catch (e) {}
+}
+function renderBarChart(data) {
+  const n = data.length, many = n > 14;
+  const bw = many ? 12 : 26, gap = many ? 4 : 12, padL = 4, padT = 8, padB = 22;
+  const h = 190, chartH = h - padT - padB;
+  const w = padL * 2 + n * bw + (n - 1) * gap;
+  const maxCal = Math.max(100, ...data.map((d) => d.calories), ...data.map((d) => d.targetCalories || 0));
+  let svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + Math.max(w, 300) + '" height="' + h + '">';
+  data.forEach((d, i) => {
+    const x = padL + i * (bw + gap);
+    const bh = Math.max(1, Math.round((d.calories / maxCal) * chartH));
+    const y = padT + chartH - bh;
+    const t = d.targetCalories || 0, pct = t > 0 ? (d.calories / t) * 100 : 0;
+    const col = t > 0 && pct >= 100 ? "var(--red)" : t > 0 && pct >= 80 ? "var(--amber)" : "var(--green)";
+    svg += '<rect x="' + x + '" y="' + y + '" width="' + bw + '" height="' + bh + '" rx="3" fill="' + col + '"><title>' +
+      d.day + ": " + Math.round(d.calories) + " kkal</title></rect>";
+    if (t > 0) {
+      const ty = padT + chartH - Math.min(chartH, (t / maxCal) * chartH);
+      svg += '<line x1="' + x + '" y1="' + ty + '" x2="' + (x + bw) + '" y2="' + ty + '" stroke="var(--muted)" stroke-width="1" stroke-dasharray="2 2"/>';
+    }
+    if (!many || i % 5 === 0) {
+      const p = d.day.split("-");
+      svg += '<text x="' + (x + bw / 2) + '" y="' + (h - 6) + '" font-size="9" fill="var(--muted)" text-anchor="middle">' + p[2] + "." + p[1] + "</text>";
+    }
+  });
+  svg += "</svg>";
+  $("#calChart").innerHTML = svg;
+}
+function renderDonut(s) {
+  const box = $("#macroDonut"); if (!box) return;
+  const p = (s.proteinG || 0) * 4, f = (s.fatG || 0) * 9, c = (s.carbsG || 0) * 4;
+  const tot = p + f + c || 1;
+  const segs = [["Protein", p, "#6a994e"], ["Yağ", f, "#f59e0b"], ["Karbohidrat", c, "#0d9488"]];
+  const r = 52, cx = 70, cy = 70, C = 2 * Math.PI * r;
+  let off = 0, arcs = "";
+  segs.forEach(([, val, col]) => {
+    const len = (val / tot) * C;
+    arcs += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + col + '" stroke-width="16" stroke-dasharray="' + len + " " + (C - len) + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90 ' + cx + " " + cy + ')"/>';
+    off += len;
+  });
+  const legend = segs.map(([lbl, val, col]) =>
+    '<div style="display:flex;align-items:center;gap:8px;margin:5px 0"><span style="width:12px;height:12px;border-radius:3px;background:' + col + '"></span>' +
+    lbl + ' — <b>' + Math.round(val) + ' kkal</b> (' + Math.round((val / tot) * 100) + '%)</div>').join("");
+  box.innerHTML = '<svg viewBox="0 0 140 140" width="140" height="140">' + arcs +
+    '<text x="70" y="66" text-anchor="middle" font-size="12" fill="var(--muted)">Cəmi</text>' +
+    '<text x="70" y="86" text-anchor="middle" font-size="16" font-weight="700" fill="var(--ink)">' + Math.round(tot) + '</text></svg>' +
+    '<div style="flex:1;min-width:180px">' + legend + '</div>';
+}
+$("#periodSeg") && $("#periodSeg").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-days]"); if (!b) return;
+  $("#periodSeg").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+  loadChart(+b.dataset.days);
+});
 
 async function loadProducts() {
   if (state.products.length) return;
@@ -214,7 +282,11 @@ async function loadProducts() {
 }
 
 async function loadSummary() {
-  try { applyLive(await ensureTarget(await api("/api/summary/today"))); } catch (e) {}
+  try {
+    const s = await ensureTarget(await api("/api/summary/today"));
+    applyLive(s);
+    renderDonut(s);
+  } catch (e) {}
 }
 
 // Pəhriz planı yoxdursa, gündəlik hədəfi istifadəçinin profilindən (TDEE) hesabla.
