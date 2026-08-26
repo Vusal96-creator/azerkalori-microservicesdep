@@ -24,6 +24,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/queue", "/topic");
         registry.setUserDestinationPrefix("/user");
+        // Client -> server mesajları (@MessageMapping) üçün prefiks: /app/chat.send
+        registry.setApplicationDestinationPrefixes("/app");
     }
 
     @Override
