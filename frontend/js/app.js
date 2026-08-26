@@ -568,48 +568,139 @@ $("#iwBtn") && $("#iwBtn").addEventListener("click", () => {
     '<div class="right"><b style="color:var(--green)">' + avg.toFixed(1) + ' kq</b></div></div>';
 });
 
+// qadında kalça sahəsini göstər/gizlət
+$("#bfSex") && $("#bfSex").addEventListener("click", () => {
+  const hip = $("#hipField");
+  if (hip) hip.style.display = state.bfSex === "FEMALE" ? "" : "none";
+});
 $("#bfBtn") && $("#bfBtn").addEventListener("click", () => {
-  const age = +$("#bf_age").value, h = +$("#bf_h").value, w = +$("#bf_w").value;
-  if (!age || !h || !w) return toast("Bütün sahələri doldur", "warn");
-  const hm = h / 100, bmi = w / (hm * hm), sexn = state.bfSex === "MALE" ? 1 : 0;
-  const bf = 1.20 * bmi + 0.23 * age - 10.8 * sexn - 5.4; // Deurenberg
-  let cat = "Normal", color = "var(--green)";
   const male = state.bfSex === "MALE";
+  const h = +$("#bf_h").value, neck = +$("#bf_neck").value, waist = +$("#bf_waist").value;
+  const hip = +($("#bf_hip") ? $("#bf_hip").value : 0);
+  if (!h || !neck || !waist || (!male && !hip)) return toast("Ölçüləri doldur", "warn");
+  const log10 = (x) => Math.log(x) / Math.LN10;
+  let bf = male
+    ? 495 / (1.0324 - 0.19077 * log10(waist - neck) + 0.15456 * log10(h)) - 450
+    : 495 / (1.29579 - 0.35004 * log10(waist + hip - neck) + 0.22100 * log10(h)) - 450;
+  if (!isFinite(bf) || bf <= 0) return toast("Ölçülər uyğun deyil (bel > boyun olmalıdır)", "warn");
+  let cat = "Normal", color = "var(--green)";
   if (bf < (male ? 6 : 14)) { cat = "Çox aşağı"; color = "var(--amber)"; }
   else if (bf > (male ? 25 : 32)) { cat = "Yüksək"; color = "var(--red)"; }
   else if (bf > (male ? 18 : 25)) { cat = "Orta-yuxarı"; color = "var(--amber)"; }
   $("#bfResult").innerHTML =
     '<div class="kcal-big" style="color:' + color + '">' + bf.toFixed(1) + ' <small>% bədən yağı</small></div>' +
-    '<div class="stat-row"><span>BMI</span><b>' + bmi.toFixed(1) + '</b></div>' +
     '<div class="stat-row"><span>Kateqoriya</span><b style="color:' + color + '">' + cat + '</b></div>' +
-    '<p class="sub">Qeyd: Deurenberg düsturu təxminidir; dəqiq ölçü üçün kaliperdən istifadə olunur.</p>';
+    '<p class="sub">U.S. Navy metodu — ölçülərə əsaslanır, təxminidir.</p>';
 });
+$("#bmiBtn") && $("#bmiBtn").addEventListener("click", () => {
+  const h = +$("#bmi_h").value, w = +$("#bmi_w").value;
+  if (!h || !w) return toast("Boy və çəkini yaz", "warn");
+  const hm = h / 100, bmi = w / (hm * hm);
+  let cat = "Normal", color = "var(--green)";
+  if (bmi < 18.5) { cat = "Arıq"; color = "var(--amber)"; }
+  else if (bmi >= 30) { cat = "Piylənmə"; color = "var(--red)"; }
+  else if (bmi >= 25) { cat = "Artıq çəki"; color = "var(--amber)"; }
+  $("#bmiResult").innerHTML =
+    '<div class="kcal-big" style="color:' + color + '">' + bmi.toFixed(1) + ' <small>BMI</small></div>' +
+    '<div class="stat-row"><span>Kateqoriya</span><b style="color:' + color + '">' + cat + '</b></div>' +
+    '<p class="sub">Norma: 18.5–24.9 · Artıq çəki: 25–29.9 · Piylənmə: 30+</p>';
+});
+
+// ---------- Şəkillər (TheMealDB — pulsuz) ----------
+const IMG = {
+  soup: "https://www.themealdb.com/images/media/meals/60oc3k1699009846.jpg",
+  beef: "https://www.themealdb.com/images/media/meals/brmxra1782681940.jpg",
+  cacik: "https://www.themealdb.com/images/media/meals/16zbeu1763789342.jpg",
+  fish: "https://www.themealdb.com/images/media/meals/uvuyxu1503067369.jpg",
+  greens: "https://www.themealdb.com/images/media/meals/73o3vq1765317873.jpg",
+  chicken: "https://www.themealdb.com/images/media/meals/vdwloy1713225718.jpg",
+  grill: "https://www.themealdb.com/images/media/meals/020z181619788503.jpg",
+  curry: "https://www.themealdb.com/images/media/meals/9ya6o71780262651.jpg",
+};
+
+// ---------- Reseptlər ----------
+const RECIPES = [
+  { img: IMG.grill, title: "Fırında toyuq döşü + tərəvəz", meta: "≈320 kkal · 35 dəq",
+    desc: "Az yağlı, yüksək proteinli əsas yemək.",
+    ing: ["Toyuq döşü 300q", "Bibər, kabaçkı, soğan", "1 x.q. zeytun yağı", "Duz, istiot, sarımsaq"],
+    steps: ["Toyuğu ədviyyat və yağla marinad et.", "Tərəvəzi doğra.", "200°C fırında 25-30 dəq bişir.", "İsti servis et."] },
+  { img: IMG.soup, title: "Yüngül kələm şorbası", meta: "≈90 kkal · 30 dəq",
+    desc: "Aztkalorili, lifli, tox saxlayan şorba.",
+    ing: ["Kələm 1/2", "Yerkökü, soğan, pomidor", "Su 1.5 l", "Duz, cəfəri"],
+    steps: ["Tərəvəzi doğra.", "Suda 20 dəq qaynat.", "Duz və göyərti əlavə et.", "İsti servis et."] },
+  { img: IMG.cacik, title: "Cacıq (qatıq-xiyar)", meta: "≈70 kkal · 10 dəq",
+    desc: "Sərinləşdirici, probiotik qarnir.",
+    ing: ["Qatıq 400q", "Xiyar 1", "Sarımsaq 1 diş", "Şüyüd, duz"],
+    steps: ["Xiyarı rəndələ, suyunu sıx.", "Qatıqla qarışdır.", "Sarımsaq və şüyüd əlavə et.", "Soyuq servis et."] },
+  { img: IMG.fish, title: "Balıqlı taco (yüngül)", meta: "≈280 kkal · 25 dəq",
+    desc: "Omega-3 mənbəyi, tərəvəzli.",
+    ing: ["Ağ balıq 250q", "Tam buğda tortilla", "Kələm, pomidor, limon", "Qatıq sousu"],
+    steps: ["Balığı ədviyyatla bişir.", "Tərəvəzi doğra.", "Tortillaya yığ.", "Limon sıxıb servis et."] },
+  { img: IMG.curry, title: "Az yağlı toyuqlu köri", meta: "≈350 kkal · 40 dəq",
+    desc: "Ədviyyatlı, doyurucu əsas yemək.",
+    ing: ["Toyuq 300q", "Soğan, sarımsaq, zəncəfil", "Köri ədviyyatı", "Az yağlı qatıq"],
+    steps: ["Soğanı qızart.", "Toyuğu və ədviyyatı əlavə et.", "Qatıqla 20 dəq bişir.", "Düyü ilə servis et."] },
+  { img: IMG.greens, title: "Göyərtili omlet", meta: "≈220 kkal · 12 dəq",
+    desc: "Sürətli, proteinli səhər yeməyi.",
+    ing: ["Yumurta 3", "İspanaq, cəfəri", "Pomidor", "Az duz, istiot"],
+    steps: ["Yumurtanı çal.", "Göyərti və pomidoru əlavə et.", "Az yağda bişir.", "Büküb servis et."] },
+];
 
 // ---------- Məqalələr ----------
 const ARTICLES = [
-  { emoji: "🥗", c: "#6a994e", title: "Kalori nədir və niyə vacibdir?",
-    body: "Kalori qidadan aldığımız enerjidir. Gün ərzində yandırdığımızdan çox kalori alsaq çəki artır, az alsaq azalır. Balans açardır — hədəfini bil, qidanı ona görə seç." },
-  { emoji: "💪", c: "#386641", title: "Protein: doyma və əzələ",
-    body: "Protein həm əzələni qoruyur, həm də uzun müddət tox saxlayır. Hər yeməyə bir protein mənbəyi (yumurta, toyuq, balıq, mərci, süzmə) əlavə etmək iştahı idarə etməyə kömək edir." },
-  { emoji: "🍎", c: "#bc4749", title: "Şəkəri necə azaltmalı?",
-    body: "Şəkərli içkilər çox kalori, az doyma verir. Onları su, çay və ya meyvə ilə əvəz et. Kiçik dəyişikliklər gün ərzində yüzlərlə kalori qənaət edə bilər." },
-  { emoji: "🏃", c: "#2a9d8f", title: "Fəallıq və gündəlik hədəf",
-    body: "İdman kalori yandırır, amma əsas iş mətbəxdə görülür. TDEE-ni bil, arıqlamaq üçün ondan ~500 kkal az saxla — həftədə təxminən yarım kiloqram sağlam itki." },
-  { emoji: "💧", c: "#457b9d", title: "Su içməyi unutma",
-    body: "Bəzən susuzluq aclıq kimi hiss olunur. Gündə çəkinin hər kq-na 30-35 ml su hədəflə; yeməkdən əvvəl bir stəkan su iştahı azalda bilər." },
-  { emoji: "🌙", c: "#6d597a", title: "Yuxu və çəki əlaqəsi",
-    body: "Az yuxu iştah hormonlarını pozur və şirniyyata meyli artırır. Gecə 7-8 saat yuxu çəki idarəsinin gizli, amma güclü amilidir." },
+  { img: IMG.beef, title: "Kalori nədir və niyə vacibdir?",
+    body: "Kalori qidadan aldığımız enerjidir. Gün ərzində yandırdığımızdan çox kalori alsaq çəki artır, az alsaq azalır. Balans açardır — hədəfini bil, qidanı ona görə seç. Kalkulyator ilə gündəlik ehtiyacını hesabla və jurnalını izlə." },
+  { img: IMG.grill, title: "Protein: doyma və əzələ",
+    body: "Protein həm əzələni qoruyur, həm də uzun müddət tox saxlayır. Hər yeməyə bir protein mənbəyi (yumurta, toyuq, balıq, mərci, süzmə) əlavə etmək iştahı idarə etməyə kömək edir. Gündə çəkinin hər kq-na 1.2–2.0 q protein məqsədəuyğundur." },
+  { img: IMG.fish, title: "Sağlam yağlar və Omega-3",
+    body: "Bütün yağlar pis deyil. Balıq, qoz, zeytun yağı və avokadodakı yağlar ürək və hormonlar üçün faydalıdır. Vacib olan ölçüdür — yağ kaloriyə görə ən sıxdır (1 q = 9 kkal)." },
+  { img: IMG.soup, title: "Lif niyə vacibdir?",
+    body: "Tərəvəz, göyərti və paxlalıdakı lif həzmi yaxşılaşdırır və uzun müddət toxluq verir. Şorbalar və salatlar az kalori ilə çox həcm verir — arıqlamağın rahat yolu." },
+  { img: IMG.cacik, title: "Su və probiotiklər",
+    body: "Bəzən susuzluq aclıq kimi hiss olunur. Gündə çəkinin hər kq-na 30–35 ml su hədəflə. Qatıq və ayran kimi probiotik məhsullar həzmə kömək edir." },
+  { img: IMG.curry, title: "Fəallıq və gündəlik hədəf",
+    body: "İdman kalori yandırır, amma əsas iş mətbəxdə görülür. TDEE-ni bil, arıqlamaq üçün ondan ~500 kkal az saxla — həftədə təxminən yarım kiloqram sağlam itki. Hədəf heç vaxt BMR-dən aşağı olmasın." },
 ];
-function renderArticles() {
-  const grid = $("#articleGrid");
-  if (!grid || grid.dataset.done) return;
-  grid.innerHTML = ARTICLES.map((a) =>
-    '<div class="card article-card">' +
-    '<div class="article-banner" style="background:' + a.c + '">' + a.emoji + '</div>' +
-    '<h3>' + a.title + '</h3><p class="sub">' + a.body + '</p></div>').join("");
-  grid.dataset.done = "1";
+
+function mediaCard(item, kind, idx) {
+  return '<div class="card media-card" data-kind="' + kind + '" data-idx="' + idx + '">' +
+    '<div class="thumb" style="background-image:url(\'' + item.img + '\')"></div>' +
+    '<div class="body">' + (item.meta ? '<span class="chip tag">' + item.meta + '</span><div style="height:8px"></div>' : '') +
+    '<h3>' + item.title + '</h3><p class="sub">' + (item.desc || item.body.slice(0, 90) + "…") + '</p></div></div>';
 }
-renderArticles();
+function renderGrids() {
+  const rg = $("#recipeGrid"), ag = $("#articleGrid");
+  if (rg && !rg.dataset.done) { rg.innerHTML = RECIPES.map((r, i) => mediaCard(r, "recipe", i)).join(""); rg.dataset.done = "1"; }
+  if (ag && !ag.dataset.done) { ag.innerHTML = ARTICLES.map((a, i) => mediaCard(a, "article", i)).join(""); ag.dataset.done = "1"; }
+}
+renderGrids();
+
+// ---------- Modal ----------
+function openModal(img, html) {
+  $("#modalImg").style.backgroundImage = "url('" + img + "')";
+  $("#modalBody").innerHTML = html;
+  $("#modal").classList.remove("hidden");
+}
+function closeModal() { $("#modal").classList.add("hidden"); }
+$("#modalClose") && $("#modalClose").addEventListener("click", closeModal);
+$("#modal") && $("#modal").addEventListener("click", (e) => { if (e.target.id === "modal") closeModal(); });
+
+document.addEventListener("click", (e) => {
+  const card = e.target.closest(".media-card");
+  if (!card) return;
+  const kind = card.dataset.kind, idx = +card.dataset.idx;
+  if (kind === "recipe") {
+    const r = RECIPES[idx];
+    openModal(r.img,
+      '<span class="chip tag">' + r.meta + '</span><h2>' + r.title + '</h2>' +
+      '<p class="sub">' + r.desc + '</p>' +
+      '<h3>Tərkib</h3><ul>' + r.ing.map((x) => '<li>' + x + '</li>').join("") + '</ul>' +
+      '<h3>Hazırlanması</h3><ol>' + r.steps.map((x) => '<li>' + x + '</li>').join("") + '</ol>');
+  } else if (kind === "article") {
+    const a = ARTICLES[idx];
+    openModal(a.img, '<h2>' + a.title + '</h2><p>' + a.body + '</p>');
+  }
+});
 
 if (state.token) connectWs();
 go("home");
