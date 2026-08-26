@@ -2,6 +2,7 @@ package az.azerkalori.tracking.service;
 
 import az.azerkalori.tracking.entity.DailySummary;
 import az.azerkalori.tracking.entity.FoodLog;
+import az.azerkalori.tracking.repo.AlertRepository;
 import az.azerkalori.tracking.repo.DailySummaryRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +35,9 @@ class SummaryServiceTest {
     // Biz hər birinin nə qaytaracağını testdə özümüz deyəcəyik.
     @Mock
     private DailySummaryRepository summaries;
+
+    @Mock
+    private AlertRepository alerts;
 
     @Mock
     private NutritionPlanClient plans;
