@@ -303,6 +303,7 @@ async function loadDoctor() {
       '<div class="right"><button class="btn sm ghost" data-patient="' + p.id + '">Bugünü gör</button> ' +
       '<button class="btn sm" data-chat="' + p.id + '" data-name="' + (p.fullName || p.email) + '">Yaz</button></div></div>').join("");
     sel.innerHTML = patients.map((p) => '<option value="' + p.id + '">' + (p.fullName || p.email) + '</option>').join("");
+    loadAlerts();
   } catch (err) { toast("Xəta: " + err.message, "bad"); }
 }
 
@@ -315,17 +316,34 @@ document.addEventListener("click", async (e) => {
   } catch (err) { toast("Bu gün üçün məlumat yoxdur", "warn"); }
 });
 
-function pushAlert(a) {
+function renderAlertItem(a, prepend) {
   const who = (state.patientsById && state.patientsById[a.patientId]) || ("Pasiyent #" + a.patientId);
   const box = $("#alerts");
-  if (box.querySelector(".result-empty")) box.innerHTML = "";
+  const empty = box.querySelector(".result-empty");
+  if (empty) empty.remove();
   const el = document.createElement("div");
   el.className = "item";
   el.innerHTML = '<div><div class="name">⚠ ' + who + ' limiti keçdi</div>' +
     '<div class="meta">' + Math.round(a.calories) + ' / ' + Math.round(a.targetCalories) + ' kkal</div></div>' +
     '<div class="right"><span class="pill LIMIT">' + a.percent + '%</span></div>';
-  box.prepend(el);
+  if (prepend) box.prepend(el); else box.appendChild(el);
+}
+
+// Canlı (WebSocket) xəbərdarlıq
+function pushAlert(a) {
+  renderAlertItem(a, true);
+  const who = (state.patientsById && state.patientsById[a.patientId]) || ("Pasiyent #" + a.patientId);
   toast("Xəbərdarlıq: " + who + " limiti keçdi", "bad");
+}
+
+// Panelə girəndə saxlanmış xəbərdarlıqları yüklə
+async function loadAlerts() {
+  const box = $("#alerts");
+  try {
+    const al = await api("/api/summary/alerts");
+    box.innerHTML = al.length ? "" : '<div class="result-empty">Hələ xəbərdarlıq yoxdur.</div>';
+    al.forEach((a) => renderAlertItem(a, false)); // API-dən yenidən köhnəyə
+  } catch (e) { /* boş qalsın */ }
 }
 
 $("#planBtn").addEventListener("click", async () => {
@@ -515,6 +533,83 @@ $("#themeBtn") && $("#themeBtn").addEventListener("click", () => {
   const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
   applyTheme(cur);
 });
+
+// ---------- Hesablamalar: ideal kilo + bədən yağ ----------
+state.iwSex = "MALE"; state.bfSex = "MALE";
+function segHandler(id, key) {
+  const seg = $("#" + id);
+  seg && seg.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-s]"); if (!b) return;
+    state[key] = b.dataset.s;
+    seg.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+  });
+}
+segHandler("iwSex", "iwSex");
+segHandler("bfSex", "bfSex");
+
+$("#iwBtn") && $("#iwBtn").addEventListener("click", () => {
+  const h = +$("#iw_h").value;
+  if (!h) return toast("Boyunu yaz", "warn");
+  const male = state.iwSex === "MALE";
+  const inch = h / 2.54, over = inch - 60, hm = h / 100;
+  const rows = [
+    ["Peterson (2016)", 2.2 * 22 + 3.5 * 22 * (hm - 1.5)],
+    ["Miller (1983)", (male ? 56.2 : 53.1) + (male ? 1.41 : 1.36) * over],
+    ["Robinson (1983)", (male ? 52 : 49) + (male ? 1.9 : 1.7) * over],
+    ["Devine (1974)", (male ? 50 : 45.5) + 2.3 * over],
+    ["Hamwi (1964)", (male ? 48 : 45.5) + (male ? 2.7 : 2.2) * over],
+  ];
+  const vals = rows.map((r) => r[1]).filter((v) => v > 0);
+  const avg = vals.reduce((a, b) => a + b, 0) / (vals.length || 1);
+  $("#iwResult").innerHTML =
+    rows.map((r) => '<div class="item"><div class="name">' + r[0] + '</div><div class="right"><b>' +
+      (r[1] > 0 ? r[1].toFixed(1) : "—") + ' kq</b></div></div>').join("") +
+    '<div class="item" style="border-top:2px solid var(--green)"><div class="name"><b>Orta ideal kilo</b></div>' +
+    '<div class="right"><b style="color:var(--green)">' + avg.toFixed(1) + ' kq</b></div></div>';
+});
+
+$("#bfBtn") && $("#bfBtn").addEventListener("click", () => {
+  const age = +$("#bf_age").value, h = +$("#bf_h").value, w = +$("#bf_w").value;
+  if (!age || !h || !w) return toast("Bütün sahələri doldur", "warn");
+  const hm = h / 100, bmi = w / (hm * hm), sexn = state.bfSex === "MALE" ? 1 : 0;
+  const bf = 1.20 * bmi + 0.23 * age - 10.8 * sexn - 5.4; // Deurenberg
+  let cat = "Normal", color = "var(--green)";
+  const male = state.bfSex === "MALE";
+  if (bf < (male ? 6 : 14)) { cat = "Çox aşağı"; color = "var(--amber)"; }
+  else if (bf > (male ? 25 : 32)) { cat = "Yüksək"; color = "var(--red)"; }
+  else if (bf > (male ? 18 : 25)) { cat = "Orta-yuxarı"; color = "var(--amber)"; }
+  $("#bfResult").innerHTML =
+    '<div class="kcal-big" style="color:' + color + '">' + bf.toFixed(1) + ' <small>% bədən yağı</small></div>' +
+    '<div class="stat-row"><span>BMI</span><b>' + bmi.toFixed(1) + '</b></div>' +
+    '<div class="stat-row"><span>Kateqoriya</span><b style="color:' + color + '">' + cat + '</b></div>' +
+    '<p class="sub">Qeyd: Deurenberg düsturu təxminidir; dəqiq ölçü üçün kaliperdən istifadə olunur.</p>';
+});
+
+// ---------- Məqalələr ----------
+const ARTICLES = [
+  { emoji: "🥗", c: "#6a994e", title: "Kalori nədir və niyə vacibdir?",
+    body: "Kalori qidadan aldığımız enerjidir. Gün ərzində yandırdığımızdan çox kalori alsaq çəki artır, az alsaq azalır. Balans açardır — hədəfini bil, qidanı ona görə seç." },
+  { emoji: "💪", c: "#386641", title: "Protein: doyma və əzələ",
+    body: "Protein həm əzələni qoruyur, həm də uzun müddət tox saxlayır. Hər yeməyə bir protein mənbəyi (yumurta, toyuq, balıq, mərci, süzmə) əlavə etmək iştahı idarə etməyə kömək edir." },
+  { emoji: "🍎", c: "#bc4749", title: "Şəkəri necə azaltmalı?",
+    body: "Şəkərli içkilər çox kalori, az doyma verir. Onları su, çay və ya meyvə ilə əvəz et. Kiçik dəyişikliklər gün ərzində yüzlərlə kalori qənaət edə bilər." },
+  { emoji: "🏃", c: "#2a9d8f", title: "Fəallıq və gündəlik hədəf",
+    body: "İdman kalori yandırır, amma əsas iş mətbəxdə görülür. TDEE-ni bil, arıqlamaq üçün ondan ~500 kkal az saxla — həftədə təxminən yarım kiloqram sağlam itki." },
+  { emoji: "💧", c: "#457b9d", title: "Su içməyi unutma",
+    body: "Bəzən susuzluq aclıq kimi hiss olunur. Gündə çəkinin hər kq-na 30-35 ml su hədəflə; yeməkdən əvvəl bir stəkan su iştahı azalda bilər." },
+  { emoji: "🌙", c: "#6d597a", title: "Yuxu və çəki əlaqəsi",
+    body: "Az yuxu iştah hormonlarını pozur və şirniyyata meyli artırır. Gecə 7-8 saat yuxu çəki idarəsinin gizli, amma güclü amilidir." },
+];
+function renderArticles() {
+  const grid = $("#articleGrid");
+  if (!grid || grid.dataset.done) return;
+  grid.innerHTML = ARTICLES.map((a) =>
+    '<div class="card article-card">' +
+    '<div class="article-banner" style="background:' + a.c + '">' + a.emoji + '</div>' +
+    '<h3>' + a.title + '</h3><p class="sub">' + a.body + '</p></div>').join("");
+  grid.dataset.done = "1";
+}
+renderArticles();
 
 if (state.token) connectWs();
 go("home");

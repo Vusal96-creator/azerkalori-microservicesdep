@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Kalori Kolik — Kalori Hesablama və İzləmə</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/styles.css" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥗</text></svg>" />
 </head>
@@ -15,6 +17,8 @@
       <div class="brand">🥗 Kalori<span>Kolik</span></div>
       <nav class="nav-links" id="navLinks">
         <a data-nav="home" class="active">Kalkulyator</a>
+        <a data-nav="tools">Hesablamalar</a>
+        <a data-nav="articles">Məqalələr</a>
         <a data-nav="dashboard" class="auth-only hidden">Panelim</a>
         <a data-nav="doctor" class="role-DOCTOR hidden">Həkim</a>
         <a data-nav="admin" class="role-ADMIN hidden">Admin</a>
@@ -280,6 +284,47 @@
         <h3>Kataloq</h3>
         <div style="overflow-x:auto"><table id="prodTable"><thead><tr><th>Ad</th><th>Kateqoriya</th><th>Kkal</th><th>P</th><th>Y</th><th>K</th></tr></thead><tbody></tbody></table></div>
       </div>
+    </div>
+  </section>
+
+  <!-- HESABLAMALAR -->
+  <section id="view-tools" class="view">
+    <div class="container">
+      <h2 class="section-title">Hesablamalar</h2>
+      <p class="section-sub">İdeal kilonu müxtəlif elmi düsturlarla və bədən yağ faizini hesabla.</p>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>⚖️ İdeal kilo</h3>
+          <p class="sub">Boy və cinsə görə fərqli düsturların nəticəsi.</p>
+          <div class="segmented" id="iwSex"><button data-s="MALE" class="on">Kişi</button><button data-s="FEMALE">Qadın</button></div>
+          <div style="height:12px"></div>
+          <label class="field"><span class="lab">Boy (sm)</span><input id="iw_h" type="number" value="175" /></label>
+          <button class="btn block" id="iwBtn">Hesabla</button>
+          <div id="iwResult" class="list" style="margin-top:14px"><div class="result-empty">Boyunu yaz və "Hesabla" bas.</div></div>
+        </div>
+        <div class="card">
+          <h3>📊 Bədən yağ faizi</h3>
+          <p class="sub">Deurenberg düsturu (BMI, yaş və cinsə əsasən).</p>
+          <div class="segmented" id="bfSex"><button data-s="MALE" class="on">Kişi</button><button data-s="FEMALE">Qadın</button></div>
+          <div style="height:12px"></div>
+          <div class="row">
+            <label class="field"><span class="lab">Yaş</span><input id="bf_age" type="number" value="30" /></label>
+            <label class="field"><span class="lab">Boy (sm)</span><input id="bf_h" type="number" value="175" /></label>
+            <label class="field"><span class="lab">Çəki (kq)</span><input id="bf_w" type="number" value="75" /></label>
+          </div>
+          <button class="btn block" id="bfBtn">Hesabla</button>
+          <div id="bfResult" style="margin-top:14px"><div class="result-empty">Məlumatları yaz və "Hesabla" bas.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MƏQALƏLƏR -->
+  <section id="view-articles" class="view">
+    <div class="container">
+      <h2 class="section-title">Məqalələr</h2>
+      <p class="section-sub">Qidalanma və sağlam həyat haqqında qısa yazılar.</p>
+      <div class="grid cols-2" id="articleGrid"></div>
     </div>
   </section>
 

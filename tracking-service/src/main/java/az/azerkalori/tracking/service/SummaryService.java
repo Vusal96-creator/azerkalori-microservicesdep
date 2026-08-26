@@ -1,13 +1,16 @@
 package az.azerkalori.tracking.service;
 
+import az.azerkalori.tracking.entity.Alert;
 import az.azerkalori.tracking.entity.DailySummary;
 import az.azerkalori.tracking.entity.FoodLog;
+import az.azerkalori.tracking.repo.AlertRepository;
 import az.azerkalori.tracking.repo.DailySummaryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -18,6 +21,7 @@ public class SummaryService {
     private final DailySummaryRepository summaries;
     private final NutritionPlanClient plans;
     private final SimpMessagingTemplate ws;
+    private final AlertRepository alerts;
 
     @Transactional
     public DailySummary apply(Long userId, FoodLog entry) {
@@ -60,6 +64,16 @@ public class SummaryService {
                         "level", level));
 
         if (percent >= 100 && s.getDoctorId() != null) {
+            // 1) DB-də saxla (həkim sonra panelə girəndə də görsün, canlı timing-dən asılı olmasın)
+            alerts.save(Alert.builder()
+                    .doctorId(s.getDoctorId())
+                    .patientId(s.getUserId())
+                    .calories(round(s.getCalories()))
+                    .targetCalories(target)
+                    .percent(Math.round(percent))
+                    .createdAt(Instant.now())
+                    .build());
+            // 2) Canlı göndər (həkim onlayndırsa dərhal görsün)
             ws.convertAndSendToUser(String.valueOf(s.getDoctorId()), "/queue/alerts",
                     Map.of("patientId", s.getUserId(),
                             "calories", round(s.getCalories()),

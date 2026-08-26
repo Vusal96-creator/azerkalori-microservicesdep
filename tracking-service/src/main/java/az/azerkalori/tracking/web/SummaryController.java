@@ -1,6 +1,8 @@
 package az.azerkalori.tracking.web;
 
+import az.azerkalori.tracking.entity.Alert;
 import az.azerkalori.tracking.entity.DailySummary;
+import az.azerkalori.tracking.repo.AlertRepository;
 import az.azerkalori.tracking.repo.DailySummaryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -16,6 +19,13 @@ import java.util.Map;
 public class SummaryController {
 
     private final DailySummaryRepository summaries;
+    private final AlertRepository alerts;
+
+    // Həkimin son xəbərdarlıqları (DB-dən — panelə girəndə göstərmək üçün).
+    @GetMapping("/alerts")
+    public List<Alert> alerts(@RequestHeader("X-User-Id") Long doctorId) {
+        return alerts.findTop50ByDoctorIdOrderByCreatedAtDesc(doctorId);
+    }
 
     @GetMapping("/today")
     public Map<String, Object> today(@RequestHeader("X-User-Id") Long userId) {
