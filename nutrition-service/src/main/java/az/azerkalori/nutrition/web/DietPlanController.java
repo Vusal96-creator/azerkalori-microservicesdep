@@ -30,10 +30,10 @@ public class DietPlanController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your patient");
         }
 
-        plans.findByPatientIdAndActiveTrue(plan.getPatientId()).ifPresent(old -> {
-            old.setActive(false);
-            plans.save(old);
-        });
+        // Pasiyentin bütün əvvəlki aktiv planlarını deaktiv et (bir neçə ola bilər).
+        List<DietPlan> olds = plans.findAllByPatientIdAndActiveTrue(plan.getPatientId());
+        olds.forEach(old -> old.setActive(false));
+        plans.saveAll(olds);
 
         plan.setDoctorId(doctorId);
         plan.setActive(true);
@@ -42,7 +42,7 @@ public class DietPlanController {
 
     @GetMapping("/my")
     public DietPlan myPlan(@RequestHeader("X-User-Id") Long userId) {
-        return plans.findByPatientIdAndActiveTrue(userId)
+        return plans.findFirstByPatientIdAndActiveTrueOrderByIdDesc(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No active plan"));
     }
 
@@ -50,7 +50,7 @@ public class DietPlanController {
     public DietPlan patientPlan(@RequestHeader(value = "X-User-Role", required = false) String role,
                                 @RequestHeader(value = "X-User-Id", required = false) Long callerId,
                                 @PathVariable Long patientId) {
-        DietPlan plan = plans.findByPatientIdAndActiveTrue(patientId)
+        DietPlan plan = plans.findFirstByPatientIdAndActiveTrueOrderByIdDesc(patientId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No active plan"));
         if ("DOCTOR".equals(role) && !plan.getDoctorId().equals(callerId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your patient");

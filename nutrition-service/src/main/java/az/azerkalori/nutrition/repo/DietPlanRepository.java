@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DietPlanRepository extends JpaRepository<DietPlan, Long> {
-    Optional<DietPlan> findByPatientIdAndActiveTrue(Long patientId);
+    // Ən son aktiv plan (bir neçə aktiv plan olsa belə çökmür).
+    Optional<DietPlan> findFirstByPatientIdAndActiveTrueOrderByIdDesc(Long patientId);
+    // Pasiyentin BÜTÜN aktiv planları (yeni plan yaradılanda hamısını deaktiv etmək üçün).
+    List<DietPlan> findAllByPatientIdAndActiveTrue(Long patientId);
     List<DietPlan> findByDoctorId(Long doctorId);
 }
