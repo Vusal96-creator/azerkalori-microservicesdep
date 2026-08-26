@@ -4,9 +4,9 @@ spring:
   application:
     name: nutrition-service
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/azerkalori?currentSchema=nutrition}
+    url: ${DB_URL:jdbc:postgresql://localhost:5440/azerkalori?currentSchema=nutrition}
     username: ${DB_USER:azer}
-    password: ${DB_PASS:secret}
+    password: ${DB_PASS:azer_strong_pw_2026}
   jpa:
     hibernate:
       ddl-auto: update
