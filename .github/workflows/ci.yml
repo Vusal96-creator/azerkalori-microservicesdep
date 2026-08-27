@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   push:
@@ -22,3 +22,21 @@ jobs:
 
       - name: Build & test
         run: ./gradlew test --no-daemon
+
+  deploy:
+    needs: build-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Droplet-ə deploy
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: 209.38.195.172
+          username: root
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          script: |
+            cd /root/azerkalori-microservicesdep
+            git stash push --include-untracked || true
+            git pull --rebase origin main || true
+            git stash pop || true
+            docker compose up -d --build
