@@ -25,6 +25,7 @@ services:
       - N8N_PORT=5678
       - N8N_SECURE_COOKIE=true
       - N8N_RUNNERS_ENABLED=true
+      - N8N_RESTRICT_FILE_ACCESS_TO=/data/shared
     volumes:
       - n8n_data:/home/node/.n8n
       - ./shared:/data/shared        # bilik faylı burada (azerkalori-knowledge.txt)

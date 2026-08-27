@@ -1,0 +1,63 @@
+AzərKalori - Bilgi Bazası
+
+## Kalori nədir?
+Kalori enerji ölçü vahididir. Gündəlik qəbul etdiyimiz qida maddələri kalori ehtiva edir. İnsan orqanizmi bu kaloridən enerji əldə edir.
+
+## BMR (Bazal Metabolizma Sürəti)
+BMR - orqanizmin istirahət vəziyyətində sərf etdiyi minimum enerji miqdarıdır. Nəfəs almaq, ürəyin döyünməsi, orqanların işləməsi üçün lazım olan enerjidir.
+
+## TDEE (Gündəlik Enerji Sərf)
+TDEE = BMR × Fəaliyyət əmsalı
+- Oturaq həyat tərzi: BMR × 1.2
+- Az fəal (həftədə 1-3 gün idman): BMR × 1.375
+- Orta fəal (həftədə 3-5 gün idman): BMR × 1.55
+- Çox fəal (həftədə 6-7 gün idman): BMR × 1.725
+- Ekstra fəal (gündə 2 dəfə idman): BMR × 1.9
+
+## Arıqlamaq üçün
+Gündəlik TDEE-dən 300-500 kalori az yemək tövsiyə olunur. Həftədə 0.5 kq itirmək üçün gündə 500 kalori kəsər lazımdır.
+
+## Kök almaq üçün
+Gündəlik TDEE-dən 300-500 kalori çox yemək lazımdır.
+
+## Zülal (Protein)
+- 1 qram zülal = 4 kalori
+- Gündəlik tövsiyə: bədən çəkisinin hər kq-ı üçün 1.6-2.2 qram
+- Zülal mənbələri: toyuq, balıq, yumurta, paxlalılar, süd məhsulları
+
+## Yağ (Fat)
+- 1 qram yağ = 9 kalori
+- Gündəlik kalorin 20-35%-i yağdan gəlməlidir
+- Sağlam yağ mənbələri: zeytun yağı, avokado, qoz-fındıq
+
+## Karbohidrat (Carbs)
+- 1 qram karbohidrat = 4 kalori
+- Gündəlik kalorin 45-65%-i karbohidratdan gəlməlidir
+- Kompleks karbohidratlar: düyü, çörək, kartof, makaron
+
+## Ümumi qidaların kalorisi (100 qrama)
+- Toyuq döşü (bişmiş): 165 kal, 31q zülal, 3.6q yağ, 0q karbohidrat
+- Yumurta: 155 kal, 13q zülal, 11q yağ, 1q karbohidrat
+- Düyü (bişmiş): 130 kal, 2.7q zülal, 0.3q yağ, 28q karbohidrat
+- Çörək (ağ): 265 kal, 9q zülal, 3.2q yağ, 49q karbohidrat
+- Alma: 52 kal, 0.3q zülal, 0.2q yağ, 14q karbohidrat
+- Banan: 89 kal, 1.1q zülal, 0.3q yağ, 23q karbohidrat
+- Südlü şokolad: 535 kal, 7.7q zülal, 29.7q yağ, 59.4q karbohidrat
+- Zeytun yağı: 884 kal, 0q zülal, 100q yağ, 0q karbohidrat
+- Ət (mal): 250 kal, 26q zülal, 15q yağ, 0q karbohidrat
+- Balıq (qızardılmış): 200 kal, 22q zülal, 12q yağ, 0q karbohidrat
+
+## Su içmək
+Gündə minimum 2-2.5 litr su içmək tövsiyə olunur. Su içmək metabolizmanı sürətləndirir.
+
+## İdman tövsiyələri
+- Həftədə ən azı 150 dəqiqə orta intensivlikli aerobik idman
+- Həftədə 2-3 dəfə güc məşqləri
+- İdmandan əvvəl karbohidrat, sonra isə zülal qəbul etmək faydalıdır
+
+## AzərKalori tətbiqi haqqında
+AzərKalori - gündəlik qida qeydiyyatı aparmaq, kalori hesablamaq və sağlam həyat tərzi keçirmək üçün hazırlanmış tətbiqdir.
+- Qida əlavə etmək: Ana səhifədə "Qida əlavə et" düyməsini basın
+- Gündəlik hesabat: "Tarix" bölməsindən istədiyiniz günü seçin
+- Hədəf təyin etmək: Profil bölməsindən kalori hədəfinizi müəyyənləşdirin
+- Pro plan: Həkim nəzarəti və ətraflı analiz üçün Pro plana keçid edin
