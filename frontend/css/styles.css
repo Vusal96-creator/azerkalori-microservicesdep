@@ -38,6 +38,12 @@ img { max-width: 100%; }
 .nav-inner { display: flex; align-items: center; gap: 20px; height: 66px; }
 .brand { font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 8px; }
 .brand span { color: var(--green); }
+/* ── CI/CD DEMO ──────────────────────────────────────────────
+   Aşağıdakı sətri AKTİVLƏŞDİR (başındakı və sonundakı şərh işarəsini götür),
+   sonra commit + push et. GitHub Actions avtomatik işə düşəcək:
+   test (CI) keçəcək → deploy (CD) olacaq → canlı saytda "Kalori" sözü YAŞIL olacaq.
+   ─────────────────────────────────────────────────────────── */
+/* .brand { color: var(--green) !important; } */
 .nav-links { display: flex; gap: 6px; margin-left: 8px; }
 .nav-links a { padding: 8px 14px; border-radius: 10px; color: var(--muted); font-weight: 600; cursor: pointer; }
 .nav-links a:hover, .nav-links a.active { color: var(--green-600); background: var(--green-050); }
