@@ -1,42 +1,74 @@
+# ─────────────────────────────────────────────────────────────
+#  CI/CD Pipeline — Kalori Kolik
+#
+#  CI (Continuous Integration): hər dəyişiklikdə kodu avtomatik
+#     build edir və testləri işlədir → sınıq kod aşkarlanır.
+#  CD (Continuous Deployment): testlər keçəndə kodu avtomatik
+#     droplet-ə yerləşdirir → kalorikolik.xyz özü yenilənir.
+# ─────────────────────────────────────────────────────────────
+
 name: CI/CD
 
+# ── NƏ VAXT işə düşür? ──────────────────────────────────────
 on:
   push:
-    branches: [ main ]
-  pull_request:
+    branches: [ main ]     # main-ə hər push-da (deploy da olur)
+  pull_request:            # hər PR-da (yalnız test, deploy YOX)
 
 jobs:
+
+  # ══ 1) CI — BUILD + TEST ═══════════════════════════════════
   build-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest          # GitHub-un pulsuz Linux serveri
     steps:
+      # Repo kodunu serverə çək
       - uses: actions/checkout@v4
 
+      # Java 17 quraşdır (layihə JDK 17 istəyir)
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
+      # gradlew-a icra icazəsi ver
       - name: gradlew icazəsi
         run: chmod +x gradlew
 
+      # Bütün servisləri build et + 18 unit testi işlət.
+      # Test keçməsə → job QIRMIZI olur → deploy DAYANIR.
       - name: Build & test
         run: ./gradlew test --no-daemon
 
+  # ══ 2) CD — DEPLOY ═════════════════════════════════════════
   deploy:
-    needs: build-test
-    if: github.ref == 'refs/heads/main'
+    needs: build-test                        # yalnız test KEÇSƏ işləyir
+    if: github.ref == 'refs/heads/main'      # yalnız main-də (PR-da yox)
     runs-on: ubuntu-latest
     steps:
+      # SSH ilə droplet-ə qoşulub yeni kodu yerləşdir.
+      # Açar GitHub Secret-də saxlanılır (koda yazılmır).
       - name: Droplet-ə deploy
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: 209.38.195.172
           username: root
-          key: ${{ secrets.DROPLET_SSH_KEY }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}   # gizli açar
           script: |
             cd /root/azerkalori-microservicesdep
-            git stash push --include-untracked || true
-            git pull --rebase origin main || true
-            git stash pop || true
-            docker compose up -d --build
+            git stash push --include-untracked || true   # lokal dəyişikliyi qoru
+            git pull --rebase origin main || true        # yeni kodu çək
+            git stash pop || true                        # geri qaytar
+            docker compose up -d --build                 # yenidən qur + işə sal
+
+# ─────────────────────────────────────────────────────────────
+#  AXIN:
+#    kod yaz → git push
+#       → build-test (CI): build + 18 test   ✓/✗
+#          → əgər ✓ və main-dirsə:
+#             → deploy (CD): SSH → pull → rebuild
+#                → kalorikolik.xyz yenilənir 🚀
+#
+#  ÜSTÜNLÜK: sınıq kod deploy olmur (needs: build-test),
+#  və heç bir əl işi yoxdur — push kifayətdir.
+# ─────────────────────────────────────────────────────────────
