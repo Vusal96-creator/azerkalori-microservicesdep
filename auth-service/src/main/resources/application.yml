@@ -6,7 +6,7 @@ spring:
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5440/azerkalori?currentSchema=auth}
     username: ${DB_USER:azer}
-    password: ${DB_PASS:azer_strong_pw_2026}
+    password: ${DB_PASS:changeme}
   jpa:
     hibernate:
       ddl-auto: update
