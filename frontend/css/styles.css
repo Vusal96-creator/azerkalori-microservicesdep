@@ -173,8 +173,10 @@ th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spa
   .hero-grid { grid-template-columns: 1fr; }
   .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; }
   .hero h1 { font-size: 34px; }
-  /* Mobisdə linkləri gizlətmə — üfüqi sürüşən sətir kimi göstər */
-  .nav-inner { flex-wrap: wrap; }
+  /* Mobisdə linkləri gizlətmə — üfüqi sürüşən sətir kimi göstər.
+     height:auto vacibdir — sabit 66px olsa, 2-ci sətir header-dən aşağı daşıb
+     səhifə başlığının (Panelim) üstünə düşür. */
+  .nav-inner { flex-wrap: wrap; height: auto; min-height: 66px; padding-bottom: 6px; gap: 10px 20px; }
   .nav-links {
     display: flex;
     order: 3;
