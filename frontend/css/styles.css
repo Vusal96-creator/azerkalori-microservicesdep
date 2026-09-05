@@ -173,7 +173,20 @@ th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spa
   .hero-grid { grid-template-columns: 1fr; }
   .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; }
   .hero h1 { font-size: 34px; }
-  .nav-links { display: none; }
+  /* Mobisdə linkləri gizlətmə — üfüqi sürüşən sətir kimi göstər */
+  .nav-inner { flex-wrap: wrap; }
+  .nav-links {
+    display: flex;
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    gap: 4px;
+    padding: 4px 0 2px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a { white-space: nowrap; padding: 7px 11px; font-size: 14px; }
 }
 
 /* ================= Chatbot widget ================= */
